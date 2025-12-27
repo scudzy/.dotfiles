@@ -111,3 +111,4 @@ docker-pass/
 *report.json
 *gitleaks*.toml
 .zshrc_Zone.Identifier
+.zcompdump
