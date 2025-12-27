@@ -1,0 +1,17 @@
+{
+  "profiles": [
+    {
+      "colorScheme": "Debian",
+      "opacity": 90,
+      "experimental.retroTerminalEffect": false,
+      "suppressApplicationTitle": false,
+      "cursorShape": "filledBox",
+      "closeOnExit": "always",
+      "colorScheme": "Ayu Mirage",
+      "font": {
+        "face": "CodeNewRoman Nerd Font",
+        "size": 13
+      }
+    }
+  ]
+}
