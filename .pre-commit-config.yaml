@@ -3,5 +3,5 @@ repos:
     hooks:
       - id: gitleaks
         name: gitleaks
-        entry: gitleaks protect --staged --verbose
+        entry: gitleaks protect --staged --verbose --redact
         language: system

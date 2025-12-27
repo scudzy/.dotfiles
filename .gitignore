@@ -108,7 +108,10 @@ docker-pass/
 .gnupg/
 .ssh/
 .env
-*report.json
+report.json
+gitleaks*.json
 *gitleaks*.toml
+leaks.json
 .zshrc_Zone.Identifier
 .zcompdump
+.zsh_history
