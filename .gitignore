@@ -1,0 +1,47 @@
+# --- Sensitive Data (The "Never Push" List) ---
+# Authentication tokens and secrets
+.env
+*.key
+*.pem
+credentials
+token.txt
+# Ignore common secret files in ~/.config
+.config/gh/
+.config/gcloud/
+.config/docker/config.json
+.config/gls/
+
+# --- System & Temp Files ---
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# WSL/Windows specific
+*.exe
+*.dll
+*.lnk
+
+# Temporary files and logs
+*.log
+*.tmp
+*.swp
+*~
+.cache/
+
+# --- Node/Python Development (Inside WSL) ---
+node_modules/
+__pycache__/
+.venv/
+.pytest_cache/
+
+# --- Zsh/Shell specific ---
+# History can contain passwords typed accidentally in the command line
+.zsh_history
+# Compiled zsh files
+*.zwc
+
+report.json
+*config.yaml
+
+*/tpm
