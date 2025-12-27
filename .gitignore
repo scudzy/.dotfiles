@@ -1,46 +1,112 @@
-# --- Sensitive Data (The "Never Push" List) ---
-# Authentication tokens and secrets
-.env
-*.key
-*.pem
-credentials
-token.txt
-# Ignore common secret files in ~/.config
-.config/gh/
-.config/gcloud/
-.config/docker/config.json
-.config/gls/
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
 
-# --- System & Temp Files ---
-# OS-specific files
-.DS_Store
-Thumbs.db
-desktop.ini
+# Session
+Session.vim
 
-# WSL/Windows specific
-*.exe
-*.dll
-*.lnk
+# Temporary
+.netrwhist
 
-# Temporary files and logs
-*.log
-*.tmp
-*.swp
-*~
-.cache/
+# Auto-generated tag files
+tags
 
-# --- Node/Python Development (Inside WSL) ---
-node_modules/
-__pycache__/
-.venv/
-.pytest_cache/
+# Persistent undo
+[._]*.un~/
 
-# --- Zsh/Shell specific ---
-# History can contain passwords typed accidentally in the command line
-.zsh_history
-# Compiled zsh files
+.aliases.local
+~*
+.*history
+.antigen
+.cache
+.zcompdump*
+.zdirs
+.zgen
+*.bak
 *.zwc
+*.zwc.old
+*history
+zplugins/
+.zprezto/
+.zinit
+.antibody/
+.zcompcache/
+.zsh_sessions/
+.ohmyzsh/
+.oh-my-zsh/
+.zsh_custom/
+*.gpg
+*/.gitmoji/
+*/plugins/
 
+# Temporary
+.netrwhist
+*~
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Temporary files #
+###################
+*.swp
+*.swo
+*~
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs #
+######################
+*.log
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Editor files #
+################
+.vscode
+
+# Custom
+circle_icon_ffffffff.png
+
+# node
+node_modules
+package.json
+package-lock.json
+
+# Ignore files containing OAuth tokens
+*access_token*
+*oauth*
+*token*
+secrets.env
+config/secrets.json
+hosts.yml
+Logs/
+.config/
+docker-pass/
+.gnupg/
+.ssh/
+.env
 *report.json
-*config.yaml
-gitleaks*
+*gitleaks*.toml
