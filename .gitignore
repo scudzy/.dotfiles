@@ -41,7 +41,6 @@ __pycache__/
 # Compiled zsh files
 *.zwc
 
-report.json
+*report.json
 *config.yaml
-
-*/tpm
+gitleaks*
