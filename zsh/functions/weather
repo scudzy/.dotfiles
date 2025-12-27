@@ -1,0 +1,69 @@
+# Function to query wttr.in for weather
+# Usage: weather [city_name] [format_string]
+# Defaults to current location if no city is provided.
+weather() {
+  url_encode() {
+    local string="$1"
+    local encoded=""
+    local c
+
+    for c in ${(s::)string}; do
+      if [[ "$c" =~ [a-zA-Z0-9.~_-] ]]; then
+        encoded+="$c"
+      else
+        encoded+=$(printf '%%%02X' "'$c")
+      fi
+    done
+
+    echo "$encoded"
+  }
+
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    _weather_help
+    return
+  fi
+
+  local city="${1:-Kuantan}"
+  local format="${2:-1Fm}"
+
+  local encoded_city="$(url_encode "$city")"
+  local encoded_format="$(url_encode "$format")"
+
+  curl -s "wttr.in/${encoded_city}?${encoded_format}"
+}
+
+# Help text for weather
+_weather_help() {
+  cat <<EOF
+weather [CITY_NAME] [FORMAT_STRING]
+
+Description:
+  Queries wttr.in to get current weather information for a specified city
+  or automatically detects your current location if no city is provided.
+  It uses 'curl' to fetch the data.
+
+Arguments:
+  CITY_NAME      (Optional) The name of the city (e.g., "Kuala Lumpur", "New York").
+                 If the city name has spaces, enclose it in quotes.
+                 If omitted, wttr.in will attempt to auto-detect your location.
+  FORMAT_STRING  (Optional) A format string for wttr.in.
+                 If omitted, wttr.in's default, often colorful, multi-line output is used.
+                 Examples of FORMAT_STRING:
+                 - "4": Detailed one-line output (equivalent to 'format=4').
+                 - "%l:+%t,+%c": Custom format (equivalent to 'format=%l:+%t,+%c').
+                 - "%C": Prints only the condition (equivalent to 'format=%C').
+                 Note: You do NOT need to prepend 'format=' to the FORMAT_STRING.
+
+Examples:
+  weather                     # Weather for your current location (default wttr.in output)
+  weather "Kuala Lumpur"      # Weather for Kuala Lumpur (default wttr.in output)
+  weather London 4            # One-line weather for London
+  weather Paris %t            # Temperature for Paris
+  weather --help              # Display this help message
+
+Note:
+  wttr.in output is often colorful by default. If colors don't show,
+  you might need to pipe the output to 'less -R' or another color-aware pager.
+  e.g., 'weather "Kuala Lumpur" | less -R'
+EOF
+}

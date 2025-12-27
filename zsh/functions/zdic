@@ -1,0 +1,41 @@
+# Function to query dict.org and display output with bat
+zdic() {
+  if [[ "$1" = "--help" || "$1" = "-h" ]]; then
+    _zdic_help
+    return 0
+  fi
+
+  if [ -z "$1" ]; then
+    echo "Usage: zdic <word>"
+    echo "Queries dict.org for the meaning of a word and displays it with bat."
+    _zdic_help # Show full help if no input
+    return 1
+  fi
+  echo "Querying dict.org for '$1'..."
+  curl -s "dict://dict.org/d:$1:wn" | bat -p -l http
+}
+
+# Help text for zdic
+_zdic_help() {
+  cat <<EOF
+zdic <WORD>
+
+Description:
+  Queries dict.org for the meaning of a specified word using the WordNet database.
+  The output is piped to 'bat' for display, which provides syntax highlighting
+  (using 'http' highlighting as a general text formatter) and pagination.
+
+Arguments:
+  WORD  The word for which to look up the definition (e.g., "hello", "cuckold").
+
+Examples:
+  zdic hello                  # Look up the definition of "hello"
+  zdic cuckold                # Look up the definition of "cuckold"
+  zdic --help                 # Display this help message
+
+Note:
+  The 'bat -l http' option is used as a general text formatter.
+  If you prefer plain text or different highlighting, you might adjust this.
+  For example, 'bat -l text' or just 'bat' (which auto-detects).
+EOF
+}

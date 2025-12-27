@@ -1,0 +1,40 @@
+# Function to query IP-API for current and EDNS IP information
+# Usage: ipgeo
+function ipgeo() {
+  local usage="
+Usage: ${FUNCNAME[0]} [-h|--help]
+
+Queries ip-api.com for your current public IP information and
+then uses the EDNS-enabled endpoint to get additional DNS-related
+IP information.
+
+Options:
+  -h, --help    Show this help message and exit.
+"
+  local edns_html url
+
+  # Fetch the HTML and extract the URL using grep with PCRE
+  # We use a local variable to contain the output and prevent it from polluting
+  # the global environment.
+  edns_html=$(curl -s http://edns.ip-api.com/json)
+  url=$(echo "$edns_html" | grep -oP 'href="\K[^"]+')
+
+  # Check if URL was successfully extracted
+  if [[ -z "$url" ]]; then
+    echo "Error: Could not extract EDNS URL from ip-api.com." >&2 # Send error to stderr
+    echo "Received HTML: $edns_html" >&2 # Show the HTML for debugging
+    return 1 # Indicate failure
+  fi
+
+  echo "Extracted EDNS URL: $url"
+
+  # Now use the extracted URL in your sequence of curl | jq commands
+  echo "--- Performing main IP API query ---"
+  curl -s http://ip-api.com/json/ | jq '.'
+
+  echo "--- Performing EDNS IP API query ---"
+  curl -s "$url" | jq '.'
+}
+
+# You can then add this function to your ~/.zshrc file
+# After adding, run `source ~/.zshrc` or open a new terminal for it to be available.
