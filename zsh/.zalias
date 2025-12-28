@@ -335,3 +335,6 @@ alias gemini='cd ~/.gemini && gemini'
 
 # golazo update
 alias golazou='curl -fsSL https://raw.githubusercontent.com/0xjuanma/golazo/main/scripts/install.sh | bash'
+
+# witr update
+alias witrup='curl -fsSL https://raw.githubusercontent.com/pranshuparmar/witr/main/install.sh | bash'
