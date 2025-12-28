@@ -108,10 +108,16 @@ docker-pass/
 .gnupg/
 .ssh/
 .env
-report.json
-gitleaks*.json
-*gitleaks*.toml
-leaks.json
 .zshrc_Zone.Identifier
 zsh/.zcompdump
 */.zsh_history
+
+# Gitleaks reports
+*-report.json
+report.json
+*gitleaks*.toml
+leaks.json
+
+# VS Code Cache & Local Configs
+.config/Code/
+.config/gh/hosts.yml
