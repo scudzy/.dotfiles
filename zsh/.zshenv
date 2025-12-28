@@ -59,7 +59,7 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANPATH="/usr/share/man:~/.local/share/zinit/polaris/man:~/.local/share/zinit/plugins/tj---git-extras/man"
 
 ### golang
-export GOROOT="/usr/local/bin"
+export GOROOT="/usr/local/go"
 export GOPATH="$HOME/go"
 export GOSUMDB="sum.golang.org"
 export GOPROXY='https://proxy.golang.org,direct'
