@@ -1075,3 +1075,5 @@ print_startup_message() {
 # and subsequent prompts (but the flag will prevent re-printing)
 precmd_functions+=(print_startup_message)
 # --- End Startup Message ---
+
+#. "$HOME/.local/share/../bin/env"
