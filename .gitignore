@@ -113,5 +113,5 @@ gitleaks*.json
 *gitleaks*.toml
 leaks.json
 .zshrc_Zone.Identifier
-.zcompdump
-.zsh_history
+zsh/.zcompdump
+*/.zsh_history
