@@ -34,7 +34,9 @@ export XAUTHORITY="${XDG_RUNTIME_DIR}Xauthority"
 export SCREENDIR="${XDG_RUNTIME_DIR}screen"
 export TMUX_TMPDIR="${XDG_RUNTIME_DIR}tmux"
 ### tmux
-export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf"
+# export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf.local"
+export ZSH_TMUX_CONFIG="~/.dotfiles/.tmux/.tmux.conf"
+export TMUX_CONF="~/.dotfiles/.tmux/.tmux.conf"
 
 if [[ "$OSTYPE" == linux-gnu ]]; then
   export XDG_DESKTOP_DIR="~/Users/Desktop"
