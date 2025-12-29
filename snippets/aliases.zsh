@@ -338,3 +338,8 @@ alias golazou='curl -fsSL https://raw.githubusercontent.com/0xjuanma/golazo/main
 
 # witr update
 alias witrup='curl -fsSL https://raw.githubusercontent.com/pranshuparmar/witr/main/install.sh | bash'
+
+# gh origin glab main
+alias gppghglab="git push origin main && git push gitlab main"
+# glab origin gh main
+alias gppglabgh="git push origin main && git push github main"
