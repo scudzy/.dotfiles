@@ -1,9 +1,7 @@
 # ~/.zshenv should only be a one-liner that sources this file
 # echo "source ~//.config/zsh/.zshenv" >| ~//.zshenv
-
 export ZDOTDIR="/home/scudzy/.dotfiles/zsh"
 export DOTFILES="/home/scudzy/.dotfiles"
-
 # Set XDG dirs
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -15,29 +13,24 @@ export XDG_DATA_DIRS="/usr/local/share:/usr/share:/usr/share/gnome"
 # export XDG_DATA_DIRS="~/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/share/gnome:/usr/local/share/:/usr/share/"
 # export RUNLEVEL=3
 export XDG_DOTS="$HOME/.dotfiles"
-
 export XDG_MENU_PREFIX=debian-
 export XDG_CURRENT_DESKTOP="xfce4"
 export XDG_SESSION_TYPE=x11
 export XDG_SESSION_CLASS=user
 export GDK_BACKEND=x11
-
 # Disables using Direct3D in Mesa 3D graphics library
 export LIBGL_ALWAYS_SOFTWARE=1
 export LIBGL_ALWAYS_INDIRECT=1
-
 # export SWAYSOCK=/run/user/1000/sway-ipc.1000.20169.sock
 # export QT_QPA_PLATFORM=wayland
-
 export ICEAUTHORITY="${XDG_RUNTIME_DIR}ICEauthority"
 export XAUTHORITY="${XDG_RUNTIME_DIR}Xauthority"
 export SCREENDIR="${XDG_RUNTIME_DIR}screen"
 export TMUX_TMPDIR="${XDG_RUNTIME_DIR}tmux"
 ### tmux
-export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf.local"
+export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf"
 #export ZSH_TMUX_CONFIG="~/.dotfiles/.tmux/.tmux.conf"
 #export TMUX_CONF="~/.dotfiles/.tmux/.tmux.conf"
-
 if [[ "$OSTYPE" == linux-gnu ]]; then
   export XDG_DESKTOP_DIR="~/Users/Desktop"
   export XDG_DOCUMENTS_DIR="~/Users/Documents"
@@ -50,11 +43,9 @@ fi
 # bat
 export PAGER="less"
 export BAT_PAGER="less -R -F -+X --mouse"
-
 export BAT_CONFIG_PATH="/home/scudzy/.config/bat/config"
 export BAT_CONFIG_DIR="/home/scudzy/.config/bat"
 export BAT_THEME="OneHalfDark"
-
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANPATH="/usr/share/man:~/.local/share/zinit/polaris/man:~/.local/share/zinit/plugins/tj---git-extras/man"
 
@@ -145,14 +136,14 @@ export POWERLINE_ZSH_SELECT="1"
 
 ### p10k & Gitstatus
 export POWERLEVEL9K_DISABLE_GITSTATUS="true"
-export GITSTATUS_DAEMON="/home/scudzy/.local/share/zinit/plugins/romkatv---powerlevel10k/gitstatus/usrbin/gitstatusd"
+# export GITSTATUS_DAEMON="/home/scudzy/.local/share/zinit/plugins/romkatv---powerlevel10k/gitstatus/usrbin/gitstatusd"
 export GITSTATUS_LOG_LEVEL=DEBUG
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 export POWERLEVEL9K_VCS_MAX_INDEX_SIZE=10000000
 typeset -g P10K_INSTANT_PROMPT=quiet
-
-### deduplicated
-typeset -U path cdpath fpath manpath
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
+# ### deduplicated
+# typeset -U path cdpath fpath manpath
 
 ### Gemini Cli
 export GOOGLE_GENAI_USE_VERTEXAI=true

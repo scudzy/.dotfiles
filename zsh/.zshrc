@@ -1,38 +1,101 @@
-# Start the timer
-start="$(date +%s)"
-# zmodload zsh/zprof
-# zmodload -i zsh/complist
+# .zshrc
+# 1. Start the timer using Zsh built-ins (Faster than calling 'date')
+zmodload zsh/datetime
+start=$EPOCHREALTIME
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# 2. Load Profiler (Only if you need to debug; otherwise, comment it out)
+# zmodload zsh/zprof
+
+# 3. Powerlevel10k Instant Prompt (Must stay at the top)
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Add your local paths to fpath BEFORE zicompinit runs
-fpath=( ~/.dotfiles/zsh/functions $fpath )
+# 4. Define Paths and fpath
+export DOTFILES="$HOME/.dotfiles"
+export ZDOTDIR="$DOTFILES/zsh"
+export SNIPPETS="$DOTFILES/snippets"
+export FZF_BASE="$HOME/.local/share/zinit/plugins/junegunn---fzf"
+# Add custom functions to fpath (using -U to keep the array unique)
+typeset -gU fpath
+fpath=( "$DOTFILES/zsh/functions" $fpath )
 
-# Set path
-DOTFILES="${HOME}/.dotfiles"
-ZDOTDIR="${DOTFILES}/zsh"
-SNIPPETS="${HOME}/.dotfiles/snippets"
+# 5. Load Zinit (Assuming it's installed in the standard location)
+if [[ ! -f "$HOME/.local/share/zinit/zinit.git/zinit.zsh" ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing Zinit...%f"
+    command mkdir -p "$HOME/.local/share/zinit"
+    command git clone https://github.com/zdharma-continuum/zinit.git "$HOME/.local/share/zinit/zinit.git"
+fi
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-    [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
-    [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-source "${ZINIT_HOME}/zinit.zsh"
-
-# 1. Prevent Zinit from calling compinit itself
-ZINIT[COMPINIT_ALREADY_CALLED]=1
-
-# 2. Call compinit ONCE with a cache check (Fastest method)
+# Faster compinit loading
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+_comp_files=(~/.zcompdump(N.m-1))
+if (( $#_comp_files )); then
   compinit -C
 else
   compinit
 fi
+unset _comp_files
+
+# # 1. THEME (No wait/lucid here!)
+zinit ice depth=1; zinit load romkatv/powerlevel10k
+[[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
+
+source ~/gitstatus/gitstatus.plugin.zsh
+
+function my_set_prompt() {
+  PROMPT='%~%# '
+  RPROMPT=''
+
+  if gitstatus_query MY && [[ $VCS_STATUS_RESULT == ok-sync ]]; then
+    RPROMPT=${${VCS_STATUS_LOCAL_BRANCH:-@${VCS_STATUS_COMMIT}}//\%/%%}  # escape %
+    (( VCS_STATUS_NUM_STAGED    )) && RPROMPT+='+'
+    (( VCS_STATUS_NUM_UNSTAGED  )) && RPROMPT+='!'
+    (( VCS_STATUS_NUM_UNTRACKED )) && RPROMPT+='?'
+  fi
+
+  setopt no_prompt_{bang,subst} prompt_percent  # enable/disable correct prompt expansions
+}
+
+gitstatus_stop 'MY' && gitstatus_start -s -1 -u -1 -c -1 -d -1 'MY'
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd my_set_prompt
+
+# eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/takuya.omp.json)"
+
+# 2. PLUGINS (Wait/Turbo mode is fine here)
+zinit wait'0' lucid for \
+    atinit"zicompinit; zicdreplay" \
+        zdharma-continuum/fast-syntax-highlighting \
+    blockf \
+        zsh-users/zsh-completions \
+    atload"!_zsh_autosuggest_start" \
+        zsh-users/zsh-autosuggestions
+
+# --- 3. Load Heavy Plugins (Turbo Mode: 1 second) ---
+# We delay these slightly because they were your main bottlenecks.
+zinit wait'1' lucid for \
+    zdharma-continuum/history-search-multi-word \
+    zsh-users/zsh-history-substring-search
+
+# zstyle ":history-search-multi-word" page-size "11"
+### diff-so-fancy
+zinit ice wait"1" lucid as"program" pick"bin/git-dsf"
+zinit load zdharma-continuum/zsh-diff-so-fancy
+# # --- 1. Load Essential Plugins Immediately ---
+# # These are needed for the prompt to look right.
+# Use 'load' instead of 'light' for P10k to ensure submodules work
+# zinit ice depth=1; zinit load romkatv/powerlevel10k
+
+# [[ ! -f ~/.dotfiles/zsh//.p10k.zsh ]] || source ~/.dotfiles/zsh//.p10k.zsh
+# source ~/.local/share/zinit/plugins/romkatv---powerlevel10k/gitstatus/install
+
+# --- 4. The "Colored" and "IPGeo" Fix ---
+# Since 'colored' was taking 184ms, we background it too.
+# zinit wait'2' lucid for \
+#     ohmyzsh/ohmyzsh path'plugins/colored-man-pages' \
+#     @your-username/ipgeo  # Replace with the actual repo for ipgeo
 
 # automatically remove duplicates from these arrays
 typeset -U path cdpath fpath manpath
@@ -44,8 +107,6 @@ zinit snippet ~/.dotfiles/snippets/completion.zsh
 zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/options.zsh
 zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/history.zsh
 zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/keybindings.zsh
-
-
 
 # dircolors: Only run if it exists
 if [ -x /usr/bin/dircolors ]; then
@@ -60,9 +121,9 @@ fi
 # You already have OMZP::colored-man-pages in your Turbo block,
 # so you don't need the LESS_TERMCAP exports here!
 
-# zsh-autosuggestions
-zinit ice wait"0" lucid atload"ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'; _zsh_autosuggest_start"
-zinit load zsh-users/zsh-autosuggestions
+# # zsh-autosuggestions
+# zinit ice wait"0" lucid atload"ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'; _zsh_autosuggest_start"
+# zinit load zsh-users/zsh-autosuggestions
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
@@ -89,12 +150,12 @@ zinit ice wait"0b" lucid atload"zinit cdreplay -q"
 zinit light-mode for \
   zdharma-continuum/zinit-annex-{'readurl','bin-gem-node','patch-dl','rust'}
 
-# --- Group 1: Essential UI (No wait, or very short wait) ---
-zinit ice wait"0" lucid atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay"
-zinit light zdharma-continuum/fast-syntax-highlighting
+# # --- Group 1: Essential UI (No wait, or very short wait) ---
+# zinit ice wait"0" lucid atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay"
+# zinit light zdharma-continuum/fast-syntax-highlighting
 
 zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
-zinit load zsh-users/zsh-completions
+# zinit load zsh-users/zsh-completions
 
 # --- Group 2: The "Heavy" OMZ Libraries ---
 # Use '!' to force load in order
@@ -129,26 +190,27 @@ zinit wait"2" lucid from"gh-r" as"null" for \
     sbin"**/grex"              pemistahl/grex \
     sbin"git-sizer"            @github/git-sizer
 
-### zsh-users/zsh-history-substring-search
-# history substring searching
-# only bind these keys once they're ready
-bindkey -r "^[[A"
-bindkey -r "^[[B"
-zinit ice wait lucid \
-  atload"
-    zmodload zsh/terminfo
-    bindkey '^[[A' history-substring-search-up
-    bindkey '^[[B' history-substring-search-down"
-zinit light zsh-users/zsh-history-substring-search
+# ### zsh-users/zsh-history-substring-search
+# # history substring searching
+# # only bind these keys once they're ready
+# bindkey -r "^[[A"
+# bindkey -r "^[[B"
+# zinit ice wait lucid \
+#   atload"
+#     zmodload zsh/terminfo
+#     bindkey '^[[A' history-substring-search-up
+#     bindkey '^[[B' history-substring-search-down"
+# zinit light zsh-users/zsh-history-substring-search
 
 ### zdharma-continuum/history-search-multi-word
-zinit ice wait"1" lucid
-zinit load zdharma-continuum/history-search-multi-word
-zstyle ":history-search-multi-word" page-size "11"
+# zinit ice wait"1" lucid
+# zinit load zdharma-continuum/history-search-multi-word
 
-### diff-so-fancy
-zinit ice wait"1" lucid as"program" pick"bin/git-dsf"
-zinit load zdharma-continuum/zsh-diff-so-fancy
+# zinit wait lucid for \
+#     zdharma-continuum/history-search-multi-word
+# --- 2. Load UI Enhancements (Turbo Mode: 0 seconds) ---
+# These load as soon as the prompt appears.
+
 
 ### LS_COLORS Download the default profile
 zinit ice lucid atclone"dircolors -b LS_COLORS > clrs.zsh" \
@@ -201,8 +263,6 @@ zinit ice lucid wait from"gh-r" as"command" pick"tldr" \
         dl="https://raw.githubusercontent.com/tealdeer-rs/tealdeer/refs/heads/main/completion/zsh_tealdeer -> _tldr"
 zinit light tealdeer-rs/tealdeer
 
-
-
 ### gdu
 zinit ice lucid wait from"gh-r" as"command" bpick"gdu_linux_amd64.tgz" mv"gdu_* -> gdu" \
        pick"gdu" dl="https://raw.githubusercontent.com/dundee/gdu/master/gdu.1" \
@@ -241,9 +301,7 @@ zinit for \
         pick'fzf' \
         src'key-bindings.zsh' \
         atclone"
-        mv -vf *.1 ${ZINIT[MAN_DIR]}/man1
-        export FZF_BASE="$HOME/.local/share/zinit/plugins/junegunn---fzf"
-        " \
+        mv -vf *.1 ${ZINIT[MAN_DIR]}/man1" \
       @junegunn/fzf
 
 # Load all FZF variables, functions, and zstyles in the background
@@ -282,7 +340,6 @@ else
     fastfetch -c ~/.config/fastfetch/examples/8.jsonc
     echo ""
 fi
-
 ########################## End of zinit line #############################
 
 # xterm modes
@@ -346,12 +403,8 @@ pkglist() { apt list "$1"* 2>/dev/null | rg -n --no-heading --color=always "${2:
 DISABLE_CORRECTION="true"
 
 # 5. UI & PROMPT
-zinit ice depth=1; zinit light romkatv/powerlevel10k
+# zinit ice depth=1; zinit light romkatv/powerlevel10k
 # To customize prompt, run `p10k configure` or edit ~/.dotfiles/zsh//.p10k.zsh.
-[[ ! -f ~/.dotfiles/zsh//.p10k.zsh ]] || source ~/.dotfiles/zsh//.p10k.zsh
-
-### direnv
-eval "$(direnv hook zsh)"
 
 # Slot 0a: Load local functions
 zinit ice wait"0a" lucid as"null" \
@@ -364,33 +417,18 @@ zinit ice wait"0b" lucid as"completion" \
     atload'zinit creinstall -q ~/.dotfiles/zsh/completions'
 zinit snippet /dev/null
 
-# Execution time
-end="$(date +%s)"
-total="$(( end - start ))"
+### direnv
+eval "$(direnv hook zsh)"
+# Calculate total time
+end=$EPOCHREALTIME
+# Calculate difference (requires zsh/mathfunc or simple arithmetic)
+total_time=$(( end - start ))
 
-# --- Ensure Startup Message Stays ---
-# Flag to ensure the message only prints once per session
-zsh_startup_message_shown=false
+# Only show the message if the shell is interactive
+if [[ -o interactive ]]; then
+    # \n at the start adds a space before, \n at the end adds a space after
+    printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n" $total_time
+fi
 
-# Function to print the startup message
-print_startup_message() {
-    if ! $zsh_startup_message_shown; then
-        # Ensure $total is defined earlier in your .zshrc if you want it to show a value.
-        printf "\n\e[0;97m 💠 Loading your blazing 🚀 fast ⚡ shell in\e[39m \e[1;92;5m$total\e[0m 🔥 \e[0;97mseconds 👻 \e[0m\n\n\n"
-        zsh_startup_message_shown=true
-    fi
-}
-# Add the function to precmd_functions to run before the first prompt
-# and subsequent prompts (but the flag will prevent re-printing)
-precmd_functions+=(print_startup_message)
-# --- End Startup Message ---
-
-# Start zsh with a profiler
-zmodload zsh/zprof
-# (Add 'zprof' to the very bottom of your .zshrc, then restart and run 'zprof')
-# Compile zcompdump in the background for next time
-{
-  if [[ -s "$HOME/.zcompdump" && (! -s "$HOME/.zcompdump.zwc" || "$HOME/.zcompdump" -nt "$HOME/.zcompdump.zwc") ]]; then
-    zcompile "$HOME/.zcompdump"
-  fi
-} &!
+# Show zprof results if it was loaded
+# zprof
