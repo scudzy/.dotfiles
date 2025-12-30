@@ -90,7 +90,9 @@ tmux
     
 ### Badges
 
-[![Logo](https://img.shields.io/badge/gitlab-repo-blue?logo=gitlab)](https://gitlab.com/scudzy/dotfiles.git)
+[![Logo](https://img.shields.io/badge/gitlab-repo-blue?logo=gitlab)](https://gitlab.com/scudzy/dotfiles-wsl.git)
+[![Logo](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/scudzy/dotfiles-wsl.git)
+
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
