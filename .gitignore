@@ -117,6 +117,7 @@ zsh/.zcompdump
 report.json
 *gitleaks*.toml
 leaks.json
+.pre-commit-config.yaml
 
 # VS Code Cache & Local Configs
 .config/Code/
