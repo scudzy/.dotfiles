@@ -87,7 +87,6 @@ tmux
 `I
 ```
 
-    
 ### Badges
 
 [![Logo](https://img.shields.io/badge/gitlab-repo-blue?logo=gitlab)](https://gitlab.com/scudzy/dotfiles-wsl.git)
@@ -95,8 +94,6 @@ tmux
 
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
 
 ### Notes
@@ -104,30 +101,9 @@ tmux
 - These are personal configs; adjust paths/settings for your setup
 - Backup your existing dotfiles before running install script
 - [Add any other relevant notes]
-## Features
 
-- Light/dark mode toggle
-- Live previews
-- Fullscreen mode
-- Cross platform
+## Authors
 
+- [@scudzy](https://www.github.com/scudzy)    
 
-## FAQ
-
-#### Question 1
-
-Answer 1
-
-#### Question 2
-
-Answer 2
-
-
-## Environment Variables
-
-To run this project, you will need to add the following environment variables to your .env file
-
-`API_KEY`
-
-`ANOTHER_API_KEY`
 
