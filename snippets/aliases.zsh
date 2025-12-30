@@ -32,14 +32,13 @@ alias zshrc="gvim $ZDOTDIR/.zshrc"
 alias zshenv="gvim $ZDOTDIR/.zshenv"
 alias zlogin="gvim $ZDOTDIR/.zlogin"
 alias zsprofile="gvim $ZDOTDIR/.zprofile"
-alias zalias="gvim /$ZDOTDIR/.zalias"
+#alias zalias="gvim /$ZDOTDIR/.zalias"
 alias resolv="gvim /etc/resolv.conf"
 alias wslrc="gvim /etc/wsl.conf"
-alias tmuxrc="gvim $HOME/.config/tmux/tmux.conf"
+alias tmuxrc="gvim /home/scudzy/.config/tmux/tmux.conf.local"
 alias vimrc="gvim $DOTFILES/.vimrc"
 alias zbench="export LAZY_PROMPT=false; for i in $(seq 1 10); do time 'zsh -i -c exit'; done; unset LAZY_PROMPT"
 alias stresscpu="for i in $(seq $(getconf _NPROCESSORS_ONLN)); do yes > /dev/null & done"
-alias ompu='sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh && sudo chmod +x /usr/local/bin/oh-my-posh'
 alias ompv='oh-my-posh --version'
 alias omp='oh-my-posh'
 
@@ -133,13 +132,17 @@ alias autorotate="jhead -autorot"
 # ls
 alias ld="eza -lahgDoT -L=1 --icons"
 #alias lld="eza -laho --icons"
-alias ll="eza -lahog --icons --group-directories-first"
-alias l1="eza -lahoT -L=1 --icons --group-directories-first"
-alias l2="eza -lahoT -L=2 --icons --group-directories-first"
-alias l3="eza -lahoT -L=3 --icons --group-directories-first"
-alias lg="eza -lahog --icons --group-directories-first"
-alias llg="eza -lahoG --icons --group-directories-first"
-alias lgit="eza -lahoT -L=1 --icons --git --group-directories-first --git-repos"
+alias ll="eza -laho --icons --group-directories-first" # without group IDs
+alias lg="eza -lahog --icons --group-directories-first" # with group IDs
+
+alias l1="eza -lahoT -L=1 --icons --group-directories-first" # depth 1
+alias l2="eza -lahoT -L=2 --icons --group-directories-first" # depth 2
+
+alias llg="eza -lahoG --icons --group-directories-first" # Grid view
+
+alias lg1="eza -lahoT -L=1 --icons --group-directories-first --git" # status of files in git
+alias lg2="eza -lahoT -L=1 --icons --group-directories-first --git-repos" # git repos
+alias lgg="eza -lahoT -L=1 --icons --group-directories-first --git --git-repos" # repos & files
 
 # sh
 alias ffmpegts="sh -c '$DOTFILES/sh/ffmpegts.sh'"
