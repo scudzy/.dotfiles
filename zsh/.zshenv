@@ -50,8 +50,9 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANPATH="/usr/share/man:~/.local/share/zinit/polaris/man:~/.local/share/zinit/plugins/tj---git-extras/man"
 
 ### golang
-export GOROOT="/usr/local/go"
+export GOROOT="$HOME/.local/go"
 export GOPATH="$HOME/go"
+export GOBIN="$HOME/go/bin"
 export GOSUMDB="sum.golang.org"
 export GOPROXY='https://proxy.golang.org,direct'
 
@@ -80,11 +81,11 @@ export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
 # export COWPATH="/usr/share/cowsay/cows/"
 
 # If you come from bash you might have to change your $PATH.
-export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT/bin:$PATH"
+export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT:$GOPATH:$PATH"
 
 # wsl2 display
 export WSL2IP="$(ip addr show eth2 | grep inet | awk '{print $2; exit;}' | sed 's/\(.*\).\{3\}$/\1/' )"
-export DISPLAY=:0
+# export DISPLAY=:0
 
 export NO_AT_BRIDGE=1
 

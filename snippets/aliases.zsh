@@ -111,7 +111,7 @@ alias tarls="tar -tvf"
 alias untar="tar -xf"
 alias biggest='du -s ./* | sort -nr | awk '\''{print $2}'\'' | xargs du -sh'
 alias dux='du -x --max-depth=1 | sort -n'
-#alias path='echo -e ${PATH//:/\\n}'
+alias path="print -l $path"
 alias manpath="print -l $manpath"
 alias fpath="print -l $fpath"
 
