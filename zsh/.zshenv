@@ -20,7 +20,7 @@ export XDG_SESSION_CLASS=user
 export GDK_BACKEND=x11
 # Disables using Direct3D in Mesa 3D graphics library
 export LIBGL_ALWAYS_SOFTWARE=1
-export LIBGL_ALWAYS_INDIRECT=1
+# export LIBGL_ALWAYS_INDIRECT=1
 # export SWAYSOCK=/run/user/1000/sway-ipc.1000.20169.sock
 # export QT_QPA_PLATFORM=wayland
 export ICEAUTHORITY="${XDG_RUNTIME_DIR}ICEauthority"
