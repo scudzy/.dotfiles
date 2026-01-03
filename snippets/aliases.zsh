@@ -27,18 +27,11 @@ alias -g ......='../../../../..'
 # vscode
 alias code="/c/Users/scudz/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
 
-# text editor
-alias zshrc="gvim $ZDOTDIR/.zshrc"
-alias zshenv="gvim $ZDOTDIR/.zshenv"
-alias zlogin="gvim $ZDOTDIR/.zlogin"
-alias zsprofile="gvim $ZDOTDIR/.zprofile"
-#alias zalias="gvim /$ZDOTDIR/.zalias"
-alias resolv="gvim /etc/resolv.conf"
-alias wslrc="gvim /etc/wsl.conf"
-alias tmuxrc="gvim /home/scudzy/.config/tmux/tmux.conf.local"
-alias vimrc="gvim $DOTFILES/.vimrc"
+# benchmark
 alias zbench="export LAZY_PROMPT=false; for i in $(seq 1 10); do time 'zsh -i -c exit'; done; unset LAZY_PROMPT"
 alias stresscpu="for i in $(seq $(getconf _NPROCESSORS_ONLN)); do yes > /dev/null & done"
+
+# omp
 alias ompv='oh-my-posh --version'
 alias omp='oh-my-posh'
 
@@ -346,3 +339,10 @@ alias witrup='curl -fsSL https://raw.githubusercontent.com/pranshuparmar/witr/ma
 alias gppghglab="git push origin main && git push gitlab main"
 # glab origin gh main
 alias gppglabgh="git push origin main && git push github main"
+
+# st4
+alias subl='/c/Program\ Files/Sublime\ Text/subl.exe'
+alias zshrc='subl $(wslpath -w ~/.zshrc)'
+alias zshenv='subl $(wslpath -w ~/.zshenv)'
+alias zprofile='subl $(wslpath -w ~/.zprofile)'
+alias aliases='subl $(wslpath -w ~/.dotfiles/snippets/aliases.zsh)'
