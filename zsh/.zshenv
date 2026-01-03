@@ -2,6 +2,10 @@
 # echo "source ~//.config/zsh/.zshenv" >| ~//.zshenv
 export ZDOTDIR="/home/scudzy/.dotfiles/zsh"
 export DOTFILES="/home/scudzy/.dotfiles"
+
+# If you come from bash you might have to change your $PATH.
+export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT:$GOPATH:$PATH"
+
 # Set XDG dirs
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -10,27 +14,34 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_RUNTIME_DIR="/run/user/1000/"
 export XDG_CONFIG_DIRS="/etc/xdg"
 export XDG_DATA_DIRS="/usr/local/share:/usr/share:/usr/share/gnome"
-# export XDG_DATA_DIRS="~/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/share/gnome:/usr/local/share/:/usr/share/"
-# export RUNLEVEL=3
 export XDG_DOTS="$HOME/.dotfiles"
 export XDG_MENU_PREFIX=debian-
 export XDG_CURRENT_DESKTOP="xfce4"
 export XDG_SESSION_TYPE=x11
 export XDG_SESSION_CLASS=user
-export GDK_BACKEND=x11
+
 # Disables using Direct3D in Mesa 3D graphics library
 export LIBGL_ALWAYS_SOFTWARE=1
-# export LIBGL_ALWAYS_INDIRECT=1
+
+# export GDK_BACKEND=x11
 # export SWAYSOCK=/run/user/1000/sway-ipc.1000.20169.sock
-# export QT_QPA_PLATFORM=wayland
+
+# Force apps to prefer Wayland over X11
+export XDG_SESSION_TYPE=wayland
+export MOZ_ENABLE_WAYLAND=1  # For Firefox
+export QT_QPA_PLATFORM=wayland
+
 export ICEAUTHORITY="${XDG_RUNTIME_DIR}ICEauthority"
 export XAUTHORITY="${XDG_RUNTIME_DIR}Xauthority"
 export SCREENDIR="${XDG_RUNTIME_DIR}screen"
-export TMUX_TMPDIR="${XDG_RUNTIME_DIR}tmux"
+
 ### tmux
+export TMUX_TMPDIR="${XDG_RUNTIME_DIR}tmux"
 export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf"
 #export ZSH_TMUX_CONFIG="~/.dotfiles/.tmux/.tmux.conf"
 #export TMUX_CONF="~/.dotfiles/.tmux/.tmux.conf"
+
+# user-dirs
 if [[ "$OSTYPE" == linux-gnu ]]; then
   export XDG_DESKTOP_DIR="~/Users/Desktop"
   export XDG_DOCUMENTS_DIR="~/Users/Documents"
@@ -80,13 +91,9 @@ export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
 # ### cowsay
 # export COWPATH="/usr/share/cowsay/cows/"
 
-# If you come from bash you might have to change your $PATH.
-export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT:$GOPATH:$PATH"
-
 # wsl2 display
 export WSL2IP="$(ip addr show eth2 | grep inet | awk '{print $2; exit;}' | sed 's/\(.*\).\{3\}$/\1/' )"
 # export DISPLAY=:0
-
 export NO_AT_BRIDGE=1
 
 # # thefuck
@@ -121,7 +128,7 @@ export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 # Default apps
 export EDITOR="vim"
 export VISUAL="vim"
-# export BROWSER="/usr/bin/firefox"
+export BROWSER="/c/Program Files/Google/Chrome/Application/chrome.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
 # Ripgrep
@@ -143,8 +150,6 @@ export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 export POWERLEVEL9K_VCS_MAX_INDEX_SIZE=10000000
 typeset -g P10K_INSTANT_PROMPT=quiet
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-# ### deduplicated
-# typeset -U path cdpath fpath manpath
 
 ### Gemini Cli
 export GOOGLE_GENAI_USE_VERTEXAI=true
