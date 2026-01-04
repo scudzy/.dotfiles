@@ -212,7 +212,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
   zinit for from'gh-r' sbin'**/procs -> procs' dalance/procs
 
 ### zsh-vi-man
-zinit light TunaCuma/zsh-vi-man
+  zinit light TunaCuma/zsh-vi-man
+  source /home/scudzy/.local/share/zinit/plugins/TunaCuma---zsh-vi-man/zsh-vi-man.plugin.zsh
 
 ### dbrgn/tealdeer
   zinit ice lucid wait from"gh-r" as"command" pick"tldr" \
