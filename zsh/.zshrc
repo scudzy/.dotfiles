@@ -181,6 +181,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
       mv"direnv* -> direnv" \
       src'zhook.zsh' \
     direnv/direnv
+
 ### eza-community/eza
   zinit ice wait"1" lucid from"gh-r" as"program" \
           dl="https://raw.githubusercontent.com/eza-community/eza/refs/heads/main/completions/zsh/_eza" \
@@ -209,6 +210,9 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 ### dalance/procs
   zinit for from'gh-r' sbin'**/procs -> procs' dalance/procs
+
+### zsh-vi-man
+zinit light TunaCuma/zsh-vi-man
 
 ### dbrgn/tealdeer
   zinit ice lucid wait from"gh-r" as"command" pick"tldr" \
@@ -350,15 +354,11 @@ PIDFOUND=$(pgrep gpg-agent)
   fi
 unset PIDFOUND
 
-### Function for pkglist
-pkglist() { apt list "$1"* 2>/dev/null | rg -n --no-heading --color=always "${2:-^$1}"; }
-
 # Disable Oh My Zsh's correction features
 DISABLE_CORRECTION="true"
 
-# 5. UI & PROMPT
-# zinit ice depth=1; zinit light romkatv/powerlevel10k
-# To customize prompt, run `p10k configure` or edit ~/.dotfiles/zsh//.p10k.zsh.
+### direnv
+eval "$(direnv hook zsh)"
 
 # Slot 0a: Load local functions
   zinit ice wait"0a" lucid as"null" \
@@ -371,18 +371,22 @@ DISABLE_CORRECTION="true"
       atload'zinit creinstall -q ~/.dotfiles/zsh/completions'
   zinit snippet /dev/null
 
-### direnv
-eval "$(direnv hook zsh)"
-# Calculate total time
-end=$EPOCHREALTIME
-# Calculate difference (requires zsh/mathfunc or simple arithmetic)
-total_time=$(( end - start ))
-
 # Only show the message if the shell is interactive
   if [[ -o interactive ]]; then
       # \n at the start adds a space before, \n at the end adds a space after
       printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n" $total_time
   fi
+
+# Symlink Wayland socket if it exists but isn't linked
+if [ -e /wslg/runtime-dir/wayland-0 ] && [ ! -e "$XDG_RUNTIME_DIR/wayland-0" ]; then
+    ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0"
+    ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock"
+fi
+
+# Calculate total time
+end=$EPOCHREALTIME
+# Calculate difference (requires zsh/mathfunc or simple arithmetic)
+total_time=$(( end - start ))
 
 # Show zprof results if it was loaded
 # zprof
