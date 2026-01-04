@@ -8,3 +8,7 @@ z() {
         [ -n "$dir" ] && cd "$dir"
     fi
 }
+
+### Function for pkglist
+pkglist() { apt list "$1"* 2>/dev/null | rg -n --no-heading --color=always "${2:-^$1}"; }
+
