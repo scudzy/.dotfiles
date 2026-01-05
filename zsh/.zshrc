@@ -94,6 +94,8 @@ typeset -U path cdpath fpath manpath
   zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/options.zsh
   zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/history.zsh
   zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/keybindings.zsh
+  zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/env.zsh
+  zinit ice wait"0a" lucid; zinit snippet ~/.dotfiles/snippets/functions.zsh
 
 # dircolors: Only run if it exists
   if [ -x /usr/bin/dircolors ]; then
