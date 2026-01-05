@@ -173,12 +173,12 @@ alias speed="speedtest --selection-details -v"
 alias zuu="zi self-update && zi update"
 
 # windows
-alias pwsh="/c/Program\ Files/Powershell/7/pwsh.exe -c $@"
-alias cmd="/c/windows/system32/cmd.exe /c $@"
-alias powershell="/c/windows/system32/windowspowershell/v1.0/powershell.exe -c $@"
-alias choco="/c/ProgramData/chocolatey/bin/choco.exe"
-alias fast="cmd /c fast -u"
-alias csu="powershell.exe -Command { choco upgrade all -y; sudo scoop update; sudo scoop status }"
+# alias pwsh="/c/Program\ Files/Powershell/7/pwsh.exe"
+# alias cmd="/c/windows/system32/cmd.exe"
+# alias powershell="/c/windows/system32/windowspowershell/v1.0/powershell.exe"
+# alias choco="/c/ProgramData/chocolatey/bin/choco.exe"
+# alias fast="cmd /c fast -u"
+# alias csu="powershell.exe -Command { choco upgrade all -y; sudo scoop update; sudo scoop status }"
 
 # nohup
 alias noxterm="nohup xfce4-terminal >/dev/null 2>&1 & sleep 3s"
@@ -191,10 +191,10 @@ alias noff="nohup firefox >/dev/null 2>&1 & sleep 3"
 alias wttr="curl -s 'wttr.in/Kuantan?0qTm'"
 alias wttr4="curl -s 'wttr.in/Kuantan?format=4'"
 
-# console
-alias tio-com3="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty3"
-alias tio-com4="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty4"
-alias tio-com6="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty6"
+# # console
+# alias tio-com3="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty3"
+# alias tio-com4="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty4"
+# alias tio-com6="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty6"
 
 # rclone
 alias rclGdrvd="rclone --exclude ".git/" sync '/home/scudzy/.dotfiles' 'Gdrive:/dotfiles/Debian' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Debian
