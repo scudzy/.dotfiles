@@ -103,7 +103,6 @@ secrets.env
 config/secrets.json
 hosts.yml
 Logs/
-.config/
 docker-pass/
 .gnupg/
 .ssh/
@@ -122,3 +121,6 @@ leaks.json
 # VS Code Cache & Local Configs
 .config/Code/
 .config/gh/hosts.yml
+
+# go
+*/go/
