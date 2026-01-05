@@ -25,8 +25,10 @@
 #--map-syntax ".ignore:Git Ignore"
 
 # Set the theme to "TwoDark"
-#--theme="TwoDark"
 --theme="DarkNeon"
+
+--terminal-width="120"
+#--chop-long-lines
 
 # Show line numbers, Git modifications and file header (but no grid)
 --style="numbers,changes,header,plain"
