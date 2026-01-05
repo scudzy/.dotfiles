@@ -22,9 +22,16 @@ export XDG_SESSION_CLASS=user
 
 # Disables using Direct3D in Mesa 3D graphics library
 export LIBGL_ALWAYS_SOFTWARE=1
-
+# Force WSL2 to use DirectX 12 for video acceleration
+export LIBVA_DRIVER_NAME=d3d12
+# export GALLIUM_DRIVER=d3d12
+# Use software rendering instead of broken hardware acceleration
+# export LIBVA_DRIVER_NAME=swrast
 # export GDK_BACKEND=x11
 # export SWAYSOCK=/run/user/1000/sway-ipc.1000.20169.sock
+
+# Adjust the number (96, 120, or 144) until it looks right on the 24" screen
+export QT_FONT_DPI=96
 
 # Force apps to prefer Wayland over X11
 export XDG_SESSION_TYPE=wayland
