@@ -64,7 +64,8 @@ export BAT_PAGER="less -R -F -+X --mouse"
 export BAT_CONFIG_PATH="/home/scudzy/.config/bat/config"
 export BAT_CONFIG_DIR="/home/scudzy/.config/bat"
 export BAT_THEME="DarkNeon"
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER="less -R --use-color -Dd+r -Du+g -S"
+# export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANPATH="/usr/share/man:~/.local/share/zinit/polaris/man:~/.local/share/zinit/plugins/tj---git-extras/man"
 
 ### golang
