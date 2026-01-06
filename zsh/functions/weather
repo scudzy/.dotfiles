@@ -1,7 +1,8 @@
+#!/bin/bash
 # Function to query wttr.in for weather
 # Usage: weather [city_name] [format_string]
 # Defaults to current location if no city is provided.
-weather() {
+# function weather() {
   url_encode() {
     local string="$1"
     local encoded=""
@@ -30,7 +31,7 @@ weather() {
   local encoded_format="$(url_encode "$format")"
 
   curl -s "wttr.in/${encoded_city}?${encoded_format}"
-}
+#}
 
 # Help text for weather
 _weather_help() {

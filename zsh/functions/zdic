@@ -1,5 +1,6 @@
+#!/bin/bash
 # Function to query dict.org and display output with bat
-zdic() {
+# function zdic() {
   if [[ "$1" = "--help" || "$1" = "-h" ]]; then
     _zdic_help
     return 0
@@ -13,7 +14,7 @@ zdic() {
   fi
   echo "Querying dict.org for '$1'..."
   curl -s "dict://dict.org/d:$1:wn" | bat -p -l http
-}
+# }
 
 # Help text for zdic
 _zdic_help() {
