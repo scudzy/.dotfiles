@@ -28,3 +28,15 @@ passmenu() {
       # powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('Password for $selection copied.', 'Passmenu')" &
   fi
 }
+
+# man page
+# Custom man function for side-scrolling and readability
+man() {
+  # 1. Set a comfortable width (caps at 100 for big windows, fits small ones)
+  local width=$(tput cols)
+  [ $width -gt 100 ] && export MANWIDTH=100 || export MANWIDTH=$width
+
+  # 2. Call man with the -S (chop long lines) pager option
+  #    -R keeps colors, -S enables horizontal scrolling
+  command man -P "less -RS" "$@"
+}
