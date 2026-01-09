@@ -1,12 +1,5 @@
-# : << EOF
-# https://github.com/gpakosz/.tmux
-# (‑●‑●)> dual licensed under the WTFPL v2 license and the MIT license,
-#         without any warranty.
-#         Copyright 2012— Gregory Pakosz (@gpakosz).
-
-
-# -- session creation ----------------------------------------------------------
-
+#!/usr/bin/env
+# .tmux.conf.local
 # prompt for session name when creating a new session, possible values are:
 #   - true
 #   - false (default)
@@ -253,7 +246,7 @@ tmux_conf_theme_right_separator_sub="|"
 #     - #{username_ssh}
 tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
 #tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
-tmux_conf_theme_status_right="#{prefix}#{pairing}#{synchronized}#(curl -s 'wttr.in/Putrajaya?m&format=3' 2>/dev/null; sleep 900) , %R , %a %d %b | #{hostname} "
+tmux_conf_theme_status_right="#{prefix} #{pairing}#{synchronized}#(curl -s 'wttr.in/Putrajaya?m&format=3' 2>/dev/null; sleep 900) , %R , %a %d %b | #{hostname} "
 ### #{username}#{root} |
 
 
