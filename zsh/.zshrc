@@ -1,77 +1,101 @@
 # .zshrc
 # 1. Start the timer using Zsh built-ins (Faster than calling 'date')
-zmodload zsh/datetime
-start=$EPOCHREALTIME
+  zmodload zsh/datetime
+  start=$EPOCHREALTIME
 
 # 2. Load Profiler (Only if you need to debug; otherwise, comment it out)
-# zmodload zsh/zprof
-
-# 3. Powerlevel10k Instant Prompt (Must stay at the top)
-  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-  fi
-
-# 4. Define Paths and fpath
-export DOTFILES="$HOME/.dotfiles"
-export ZDOTDIR="$DOTFILES/zsh"
-export SNIPPETS="$DOTFILES/snippets"
-export FZF_BASE="$HOME/.local/share/zinit/plugins/junegunn---fzf"
-# Add custom functions to fpath (using -U to keep the array unique)
-typeset -gU fpath
-fpath=( "$DOTFILES/zsh/functions" $fpath )
-
-# 5. Load Zinit (Assuming it's installed in the standard location)
-  if [[ ! -f "$HOME/.local/share/zinit/zinit.git/zinit.zsh" ]]; then
-      print -P "%F{33}▓▒░ %F{220}Installing Zinit...%f"
-      command mkdir -p "$HOME/.local/share/zinit"
-      command git clone https://github.com/zdharma-continuum/zinit.git "$HOME/.local/share/zinit/zinit.git"
-  fi
-  source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
-
-# Faster compinit loading
+  zmodload zsh/zprof
+# This tells Zinit to skip its internal compinit call.
+  ZINIT_COMPINIT_SKIP=1
+# 1. COMPLETION CACHING (Place this at the VERY top)
+# This prevents compinit from running 3 times and skips disk scans if the cache is fresh.
   autoload -Uz compinit
-  _comp_files=(~/.zcompdump(N.m-1))
-  if (( $#_comp_files )); then
+  if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
     compinit -C
   else
     compinit
   fi
-  unset _comp_files
 
-# # 1. THEME (No wait/lucid here!)
-  zinit ice depth=1; zinit load romkatv/powerlevel10k
-  [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
+# Load Zinit
+  if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+      print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
+      command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
+      command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
+      print -P "%F{33} %F{34}Installation successful.%f%b" || \
+      print -P "%F{160} The clone has failed.%f%b"
+  fi
+  source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 
-source ~/gitstatus/gitstatus.plugin.zsh
+# 4. Define Paths and fpath
+  export DOTFILES="$HOME/.dotfiles"
+  export ZDOTDIR="$DOTFILES/zsh"
+  export SNIPPETS="$DOTFILES/snippets"
+  export FZF_BASE="$HOME/.local/share/zinit/plugins/junegunn---fzf"
 
-  function my_set_prompt() {
-    PROMPT='%~%# '
-    RPROMPT=''
+# 3. TURBO MODE FOR PLUGINS
+# Load the prompt IMMEDIATELY so you see a shell fast
+### powerline-go prompt
+  # function powerline_precmd() {
+  #     eval "$($GOPATH/bin/powerline-go -error $? -shell zsh -eval -modules-right git)"
+  # }
 
-    if gitstatus_query MY && [[ $VCS_STATUS_RESULT == ok-sync ]]; then
-      RPROMPT=${${VCS_STATUS_LOCAL_BRANCH:-@${VCS_STATUS_COMMIT}}//\%/%%}  # escape %
-      (( VCS_STATUS_NUM_STAGED    )) && RPROMPT+='+'
-      (( VCS_STATUS_NUM_UNSTAGED  )) && RPROMPT+='!'
-      (( VCS_STATUS_NUM_UNTRACKED )) && RPROMPT+='?'
-    fi
+  # function install_powerline_precmd() {
+  #   for s in "${precmd_functions[@]}"; do
+  #     if [ "$s" = "powerline_precmd" ]; then
+  #       return
+  #     fi
+  #   done
+  #   precmd_functions+=(powerline_precmd)
+  # }
 
-    setopt no_prompt_{bang,subst} prompt_percent  # enable/disable correct prompt expansions
-  }
+  # if [ "$TERM" != "linux" ]; then
+  #     install_powerline_precmd
+  # fi
+### powerline-go prompt
 
-gitstatus_stop 'MY' && gitstatus_start -s -1 -u -1 -c -1 -d -1 'MY'
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd my_set_prompt
+# FZF and History (Fixes the 2.2s fzf-history-widget lag)
+  zinit ice wait'0' lucid
+  zinit light Aloxaf/fzf-tab
 
-# eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/takuya.omp.json)"
+# Syntax Highlighting & Autosuggestions
+  zinit ice wait'0a' lucid
+  zinit light zsh-users/zsh-autosuggestions
 
-# 2. PLUGINS (Wait/Turbo mode is fine here)
-  zinit wait'0' lucid for \
-      atinit"zicompinit; zicdreplay" \
-          zdharma-continuum/fast-syntax-highlighting \
-      blockf \
-          zsh-users/zsh-completions \
-      atload"!_zsh_autosuggest_start" \
-          zsh-users/zsh-autosuggestions
+  zinit ice wait'0b' lucid
+  zinit light zdharma-continuum/fast-syntax-highlighting
+
+# Completions (The "Turbo" way)
+  zinit ice wait'0c' lucid blockf atpull'zinit creinstall -q .'
+  zinit light zsh-users/zsh-completions
+
+# NVM (Fixed Lazy Load)
+# On your Lenovo G50-70, this deferred load prevents the 2s startup lag.
+  zinit ice wait'1' lucid
+  zinit light lukechilds/zsh-nvm
+
+# # 3. Powerlevel10k Instant Prompt (Must stay at the top)
+#   if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+#   fi
+
+# 1. THEME (No wait/lucid here!)
+# zinit ice depth=1; zinit load romkatv/powerlevel10k
+# [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
+# source ~/gitstatus/gitstatus.plugin.zsh
+
+  # function my_set_prompt() {
+  #   PROMPT='%~%# '
+  #   RPROMPT=''
+
+  #   if gitstatus_query MY && [[ $VCS_STATUS_RESULT == ok-sync ]]; then
+  #     RPROMPT=${${VCS_STATUS_LOCAL_BRANCH:-@${VCS_STATUS_COMMIT}}//\%/%%}  # escape %
+  #     (( VCS_STATUS_NUM_STAGED    )) && RPROMPT+='+'
+  #     (( VCS_STATUS_NUM_UNSTAGED  )) && RPROMPT+='!'
+  #     (( VCS_STATUS_NUM_UNTRACKED )) && RPROMPT+='?'
+  #   fi
+
+  #   setopt no_prompt_{bang,subst} prompt_percent  # enable/disable correct prompt expansions
+  # }
 
 # --- 3. Load Heavy Plugins (Turbo Mode: 1 second) ---
 # We delay these slightly because they were your main bottlenecks.
@@ -85,7 +109,10 @@ add-zsh-hook precmd my_set_prompt
   zinit load zdharma-continuum/zsh-diff-so-fancy
 
 # automatically remove duplicates from these arrays
-typeset -U path cdpath fpath manpath
+  typeset -U path cdpath fpath manpath
+  # Add custom functions to fpath (using -U to keep the array unique)
+  typeset -gU fpath
+  # fpath=( "$DOTFILES/zsh/functions" $fpath )
 
 # Zinit block
   zinit ice wait"0a" lucid
@@ -106,31 +133,15 @@ typeset -U path cdpath fpath manpath
       zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
   fi
 # Use your existing Zinit plugin for Man colors
-# You already have OMZP::colored-man-pages in your Turbo block,
-# so you don't need the LESS_TERMCAP exports here!
-
-### Added by Zinit's installer
-  if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
-      print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
-      command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
-      command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
-      print -P "%F{33} %F{34}Installation successful.%f%b" || \
-      print -P "%F{160} The clone has failed.%f%b"
-  fi
-### End of Zinit's installer chunk
 
 # Define the NVM directory (keep your XDG logic)
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+  export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 
-# If you have a specific node version you want ready in the background:
-  zinit ice wait"1" lucid
-  zinit load lukechilds/zsh-nvm
+# Load extra completions (Turbo Mode)
+  zinit ice wait'0' lucid blockf atpull'zinit creinstall -q .'
+  zinit light zsh-users/zsh-completions
 
-# Disable Zinit's automatic completion management to save 1-2 seconds
-# (We handle it manually with the single compinit call above)
-  zinit ice wait"0b" lucid atload"zinit cdreplay -q"
-
-### load zinit modules
+# load zinit modules
   zinit light-mode for \
     zdharma-continuum/zinit-annex-{'readurl','bin-gem-node','patch-dl','rust'}
 
@@ -272,14 +283,10 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
   zinit ice wait"1" lucid
   zinit light 'wfxr/forgit'
 
-# Load the plugin
-  zinit ice wait"1" lucid has"fzf"
-  zinit light Aloxaf/fzf-tab
-
-### oxipng
-  zinit ice wait"0b" from"gh-r" \
+# oxipng - multisrc cargo & grc
+  zinit ice wait"0b" lucid from"gh-r" \
           mv"oxipng-*x86_64-unknown-linux-gnu* -> oxipng" \
-          multisrc"~/.dotfiles/snippets/aliases.zsh ~/.dotfiles/snippets/xdg.zsh /etc/grc.zsh"
+          multisrc"~/.cargo/env ~/.dotfiles/snippets/aliases.zsh ~/.dotfiles/snippets/xdg.zsh /etc/grc.zsh"
   zinit light oxipng/oxipng
 
 # dynamic aliases
@@ -292,8 +299,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
   if [[ -o Login ]]; then
       echo "Login"
       echo ""
-      # fastfetch -c ~/.config/fastfetch/archey.jsonc
-      gotcha
+      fastfetch -c ~/.config/fastfetch/archey.jsonc
+      # gotcha
       echo ""
   else
       echo "Non-Login"
@@ -308,13 +315,13 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
       export TERM=xterm-256color
   fi
 
-### bathelp
+# bathelp
   alias bathelp='bat --plain --language=help'
   help() {
       "$@" --help 2>&1 | bathelp
   }
 
-### fzf pass ZSH
+# fzf pass ZSH
   _fzf_complete_pass() {
     _fzf_complete +m -- "$@" < <(
       local prefix
@@ -326,42 +333,39 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
   }
 
 # Load powerline daemon and go-binary asynchronously
-zinit ice wait"0" lucid atload'powerline-daemon -q'
-zinit snippet /home/scudzy/.config/powerline/zsh/powerline.zsh
+  zinit ice wait"0" lucid atload'powerline-daemon -q'
+  zinit snippet /home/scudzy/.config/powerline/zsh/powerline.zsh
 
 # Setup powerline-go in a hook
-precmd_functions+=(powerline_precmd)
-  powerline_precmd() {
-    PS1="$(/usr/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
-  }
+  precmd_functions+=(powerline_precmd)
+    powerline_precmd() {
+      PS1="$(/usr/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
+    }
 # end of powerline-status
 
-### cargo
-. "$HOME/.cargo/env"
-
 # forgit
-zinit ice wait lucid
-zinit light 'wfxr/forgit'
+  zinit ice wait"0" lucid
+  zinit light 'wfxr/forgit'
 
 # browserpass gnupg
-PIDFOUND=$(pgrep gpg-agent)
-  if [ -n "$PIDFOUND" ]; then
-      export GPG_AGENT_INFO="$HOME/.gnupg/S.gpg-agent:$PIDFOUND:1"
-      export GPG_TTY=$(tty)
-      export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
-      unset SSH_AGENT_PID
-  fi
-  PIDFOUND=$(pgrep dirmngr)
-  if [ -n "$PIDFOUND" ]; then
-      export DIRMNGR_INFO="$HOME/.gnupg/S.dirmngr:$PIDFOUND:1"
-  fi
-unset PIDFOUND
+  PIDFOUND=$(pgrep gpg-agent)
+    if [ -n "$PIDFOUND" ]; then
+        export GPG_AGENT_INFO="$HOME/.gnupg/S.gpg-agent:$PIDFOUND:1"
+        export GPG_TTY=$(tty)
+        export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
+        unset SSH_AGENT_PID
+    fi
+    PIDFOUND=$(pgrep dirmngr)
+    if [ -n "$PIDFOUND" ]; then
+        export DIRMNGR_INFO="$HOME/.gnupg/S.dirmngr:$PIDFOUND:1"
+    fi
+  unset PIDFOUND
 
 # Disable Oh My Zsh's correction features
-DISABLE_CORRECTION="true"
+  DISABLE_CORRECTION="true"
 
-### direnv
-eval "$(direnv hook zsh)"
+# direnv
+  eval "$(direnv hook zsh)"
 
 # Slot 0a: Load local functions
   zinit ice wait"0a" lucid as"null" \
@@ -371,8 +375,11 @@ eval "$(direnv hook zsh)"
 
 # Slot 0b: Your Completions
   zinit ice wait"0b" lucid as"completion" \
-      atload'zinit creinstall -q ~/.dotfiles/zsh/completions'
+      atload'zinit creinstall ~/.dotfiles/zsh/completions > /dev/null 2>&1'
   zinit snippet /dev/null
+
+# omp
+  eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
 
 # Only show the message if the shell is interactive
   if [[ -o interactive ]]; then
@@ -381,15 +388,15 @@ eval "$(direnv hook zsh)"
   fi
 
 # Symlink Wayland socket if it exists but isn't linked
-if [ -e /wslg/runtime-dir/wayland-0 ] && [ ! -e "$XDG_RUNTIME_DIR/wayland-0" ]; then
-    ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0"
-    ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock"
-fi
+  if [ -e /wslg/runtime-dir/wayland-0 ] && [ ! -e "$XDG_RUNTIME_DIR/wayland-0" ]; then
+     ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0"
+     ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock"
+  fi
 
 # Calculate total time
-end=$EPOCHREALTIME
+  end=$EPOCHREALTIME
 # Calculate difference (requires zsh/mathfunc or simple arithmetic)
-total_time=$(( end - start ))
+  total_time=$(( end - start ))
 
 # Show zprof results if it was loaded
-# zprof
+  #zprof
