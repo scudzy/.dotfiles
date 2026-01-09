@@ -280,7 +280,8 @@
   zinit snippet ~/.dotfiles/snippets/fzf.zsh
 
 # Slot 0b: Load after your core UI is ready
-  zinit ice wait"1" lucid
+  zinit ice wait"1" lucid \
+        atload'unalias grc'
   zinit light 'wfxr/forgit'
 
 # oxipng - multisrc cargo & grc
