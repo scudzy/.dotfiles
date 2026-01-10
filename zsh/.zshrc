@@ -344,10 +344,6 @@
     }
 # end of powerline-status
 
-# forgit
-  zinit ice wait"0" lucid
-  zinit light 'wfxr/forgit'
-
 # browserpass gnupg
   PIDFOUND=$(pgrep gpg-agent)
     if [ -n "$PIDFOUND" ]; then
