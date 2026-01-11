@@ -32,3 +32,6 @@ bindkey '^[[Z' undo             # Shift + Tab
 zle -C alias-expension complete-word _generic
 bindkey '^a' alias-expension
 zstyle ':completion:alias-expension:*' completer _expand_alias
+
+# lf Ctrl+o
+bindkey -s '^o' 'lfcd\n'

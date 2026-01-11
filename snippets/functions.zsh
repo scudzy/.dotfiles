@@ -40,3 +40,9 @@ man() {
   #    -R keeps colors, -S enables horizontal scrolling
   command man -P "less -RS" "$@"
 }
+
+# lfcd
+lfcd () {
+    # `command` is needed in case `lfcd` is aliased to `lf`
+    cd "$(command lf -print-last-dir "$@")"
+}
