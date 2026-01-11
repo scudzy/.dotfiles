@@ -7,10 +7,14 @@
 " -----------------------------------------------------------------------------
 
 " Specify a directory for plugins.
-call plug#begin('~/.vim/plugged')
+call plug#begin ('~/.vim/plugged')
 
 " Atom One Dark / Light theme.
 Plug 'rakr/vim-one'
+
+" Theming
+Plug 'joshdick/onedark.vim'
+Plug 'tribela/vim-transparent'
 
 " Gruvbox Community theme.
 Plug 'gruvbox-community/gruvbox'
@@ -18,12 +22,11 @@ Plug 'gruvbox-community/gruvbox'
 Plug 'jacoborus/tender.vim'
 " Ayu
 Plug 'ayu-theme/ayu-vim'
-
 " Dracula theme
 Plug 'dracula/vim', { 'as': 'dracula' }
 
-" Integrate fzf with Vim.
-Plug 'junegunn/fzf'
+" Fuzzy finder and its Vim plugin
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 " Better manage Vim sessions.
@@ -38,6 +41,15 @@ Plug 'tmux-plugins/vim-tmux-focus-events'
 " Navigate and manipulate files in a tree view.
 Plug 'lambdalisue/fern.vim'
 Plug 'lambdalisue/fern-mapping-mark-children.vim'
+
+" Core icon library
+Plug 'lambdalisue/nerdfont.vim'
+
+" Fern renderer to display the icons
+Plug 'lambdalisue/vim-fern-renderer-nerdfont'
+
+" The palette plugin for colors
+Plug 'lambdalisue/vim-glyph-palette'
 
 " Helpers for moving and manipulating files / directories.
 Plug 'tpope/vim-eunuch'
@@ -140,6 +152,16 @@ Plug 'zdharma-continuum/zinit-vim-syntax'
 " less.vim
 Plug 'groenewege/vim-less'
 
+" Features
+Plug 'easymotion/vim-easymotion'
+Plug 'junegunn/vim-easy-align'
+Plug 'jasonccox/vim-wayland-clipboard'
+
+" Syntax
+Plug 'sheerun/vim-polyglot'
+Plug 'alker0/chezmoi.vim'
+Plug 'petRUShka/vim-sage'
+Plug 'imsnif/kdl.vim'
 
 call plug#end()
 
@@ -149,11 +171,11 @@ call plug#end()
 
 " Enable 24-bit true colors if your terminal supports it.
 if (has("termguicolors"))
-  " https://github.com/vim/vim/issues/993#issuecomment-255651605
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+	" https://github.com/vim/vim/issues/993#issuecomment-255651605
+	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+	let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-  set termguicolors
+	set termguicolors
 endif
 
 " Enable syntax highlighting.
@@ -161,32 +183,37 @@ syntax on
 
 " Specific colorscheme settings (must come before setting your colorscheme).
 if !exists('g:gruvbox_contrast_light')
-  let g:gruvbox_contrast_light='hard'
+	let g:gruvbox_contrast_light='hard'
 endif
 
 set background=dark
 
 " AirLineTheme
-let g:airline_theme='powerlineish'
+let g:airline_theme='ayu'
+" let g:airline_theme='powerlineish'
 " set airline theme
 " let g:airline_theme = 'tender'
-"set termguicolors
-"let ayucolor="light"  " for light version of theme
-"let ayucolor="mirage" " for mirage version of theme
+
+set termguicolors
+let ayucolor="light"  " for light version of theme
+let ayucolor="mirage" " for mirage version of theme
 let ayucolor="dark"   " for dark version of theme
-"colorscheme powerlineish
-colorscheme brogrammer
-"colorscheme gruvbox
+colorscheme ayu
+" colorscheme brogrammer
+" colorscheme gruvbox
+
+" font
+let g:airline_powerline_fonts = 1
 
 " Specific colorscheme settings (must come after setting your colorscheme).
 if (g:colors_name == 'gruvbox')
-  if (&background == 'dark')
-    hi Visual cterm=NONE ctermfg=NONE ctermbg=237 guibg=#3a3a3a
-  else
-    hi Visual cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
-    hi CursorLine cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
-    hi ColorColumn cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
-  endif
+	if (&background == 'dark')
+		hi Visual cterm=NONE ctermfg=NONE ctermbg=237 guibg=#3a3a3a
+	else
+		hi Visual cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
+		hi CursorLine cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
+		hi ColorColumn cterm=NONE ctermfg=NONE ctermbg=228 guibg=#f2e5bc
+	endif
 endif
 
 " Spelling mistakes will be colored up red.
@@ -201,15 +228,15 @@ hi SpellCap cterm=underline ctermfg=203 guifg=#ff5f5f
 
 " Heavily inspired by: https://github.com/junegunn/dotfiles/blob/master/vimrc
 function! s:statusline_expr()
-  let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
-  let ro  = "%{&readonly ? '[RO] ' : ''}"
-  let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
-  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
-  let sep = ' %= '
-  let pos = ' %-12(%l : %c%V%) '
-  let pct = ' %P'
+	let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
+	let ro  = "%{&readonly ? '[RO] ' : ''}"
+	let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
+	let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
+	let sep = ' %= '
+	let pos = ' %-12(%l : %c%V%) '
+	let pct = ' %P'
 
-  return '[%n] %f %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
+	return '[%n] %f %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
 endfunction
 
 let &statusline = s:statusline_expr()
@@ -253,7 +280,7 @@ set number relativenumber
 set regexpengine=1
 set ruler
 set scrolloff=3
-set shiftwidth=2
+set shiftwidth=4
 set showcmd
 set showmatch
 set shortmess+=c
@@ -263,14 +290,14 @@ set softtabstop=2
 set spelllang=en_us
 set splitbelow
 set splitright
-set tabstop=2
+set tabstop=4
 set textwidth=0
 set ttimeout
 set timeoutlen=1000
 set ttimeoutlen=0
 set ttyfast
 if !has('nvim')
-  set ttymouse=sgr
+	set ttymouse=sgr
 endif
 set undodir=/tmp
 set undofile
@@ -366,15 +393,15 @@ vnoremap J :m '>+1<CR>gv=gv
 
 " Toggle quickfix window.
 function! QuickFix_toggle()
-    for i in range(1, winnr('$'))
-        let bnum = winbufnr(i)
-        if getbufvar(bnum, '&buftype') == 'quickfix'
-            cclose
-            return
-        endif
-    endfor
+	for i in range(1, winnr('$'))
+		let bnum = winbufnr(i)
+		if getbufvar(bnum, '&buftype') == 'quickfix'
+			cclose
+			return
+		endif
+	endfor
 
-    copen
+	copen
 endfunction
 nnoremap <silent> <Leader>c :call QuickFix_toggle()<CR>
 
@@ -400,8 +427,8 @@ inoremap <expr> <Left> pumvisible() ? "<C-e>" : "<Left>"
 " Auto-resize splits when Vim gets resized.
 autocmd VimResized * wincmd =
 
-" Update a buffer's contents on focus if it changed outside of Vim.
-au FocusGained,BufEnter * :checktime
+	" Update a buffer's contents on focus if it changed outside of Vim.
+	au FocusGained,BufEnter * :checktime
 
 " Unset paste on InsertLeave.
 autocmd InsertLeave * silent! set nopaste
@@ -417,20 +444,20 @@ autocmd FileType make setlocal noexpandtab
 
 " Only show the cursor line in the active buffer.
 augroup CursorLine
-    au!
-    au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-    au WinLeave * setlocal nocursorline
+	au!
+	au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+	au WinLeave * setlocal nocursorline
 augroup END
 
 " Mappings to make Vim more friendly towards presenting slides.
 autocmd BufNewFile,BufRead *.vpm call SetVimPresentationMode()
 function SetVimPresentationMode()
-  nnoremap <buffer> <Right> :n<CR>
-  nnoremap <buffer> <Left> :N<CR>
+	nnoremap <buffer> <Right> :n<CR>
+	nnoremap <buffer> <Left> :N<CR>
 
-  if !exists('#goyo')
-    Goyo
-  endif
+	if !exists('#goyo')
+		Goyo
+	endif
 endfunction
 
 " ----------------------------------------------------------------------------
@@ -439,36 +466,36 @@ endfunction
 
 " Add all TODO items to the quickfix list relative to where you opened Vim.
 function! s:todo() abort
-  let entries = []
-  for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null',
-            \ 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
-    let lines = split(system(cmd), '\n')
-    if v:shell_error != 0 | continue | endif
-    for line in lines
-      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
-      call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
-    endfor
-    break
-  endfor
+	let entries = []
+	for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null',
+				\ 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
+		let lines = split(system(cmd), '\n')
+		if v:shell_error != 0 | continue | endif
+		for line in lines
+			let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
+			call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
+		endfor
+		break
+	endfor
 
-  if !empty(entries)
-    call setqflist(entries)
-    copen
-  endif
+	if !empty(entries)
+		call setqflist(entries)
+		copen
+	endif
 endfunction
 
 command! Todo call s:todo()
 
 " Profile Vim by running this command once to start it and again to stop it.
 function! s:profile(bang)
-  if a:bang
-    profile pause
-    noautocmd qall
-  else
-    profile start /tmp/profile.log
-    profile func *
-    profile file *
-  endif
+	if a:bang
+		profile pause
+		noautocmd qall
+	else
+		profile start /tmp/profile.log
+		profile func *
+			profile file *
+			endif
 endfunction
 
 command! -bang Profile call s:profile(<bang>0)
@@ -485,24 +512,24 @@ let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all'
 
 " Customize fzf colors to match your color scheme.
 let g:fzf_colors =
-\ { 'fg':      ['fg', 'Normal'],
-  \ 'bg':      ['bg', 'Normal'],
-  \ 'hl':      ['fg', 'Comment'],
-  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-  \ 'hl+':     ['fg', 'Statement'],
-  \ 'info':    ['fg', 'PreProc'],
-  \ 'prompt':  ['fg', 'Conditional'],
-  \ 'pointer': ['fg', 'Exception'],
-  \ 'marker':  ['fg', 'Keyword'],
-  \ 'spinner': ['fg', 'Label'],
-  \ 'header':  ['fg', 'Comment'] }
+			\ { 'fg':      ['fg', 'Normal'],
+			\ 'bg':      ['bg', 'Normal'],
+			\ 'hl':      ['fg', 'Comment'],
+			\ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+			\ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+			\ 'hl+':     ['fg', 'Statement'],
+			\ 'info':    ['fg', 'PreProc'],
+			\ 'prompt':  ['fg', 'Conditional'],
+			\ 'pointer': ['fg', 'Exception'],
+			\ 'marker':  ['fg', 'Keyword'],
+			\ 'spinner': ['fg', 'Label'],
+			\ 'header':  ['fg', 'Comment'] }
 
 let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-b': 'split',
-  \ 'ctrl-v': 'vsplit',
-  \ 'ctrl-y': {lines -> setreg('*', join(lines, "\n"))}}
+			\ 'ctrl-t': 'tab split',
+			\ 'ctrl-b': 'split',
+			\ 'ctrl-v': 'vsplit',
+			\ 'ctrl-y': {lines -> setreg('*', join(lines, "\n"))}}
 
 " Launch fzf with CTRL+P.
 nnoremap <silent> <C-p> :FZF -m<CR>
@@ -514,9 +541,9 @@ nnoremap <silent> <Leader>l :Lines<CR>
 " Allow passing optional flags into the Rg command.
 "   Example: :Rg myterm -g '*.md'
 command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \ "rg --column --line-number --no-heading --color=always --smart-case " .
-  \ <q-args>, 1, fzf#vim#with_preview(), <bang>0)
+			\ call fzf#vim#grep(
+			\ "rg --column --line-number --no-heading --color=always --smart-case " .
+			\ <q-args>, 1, fzf#vim#with_preview(), <bang>0)
 
 " .............................................................................
 " lambdalisue/fern.vim
@@ -529,49 +556,57 @@ let g:loaded_netrwSettings = 1
 let g:loaded_netrwFileHandlers = 1
 
 augroup my-fern-hijack
-  autocmd!
-  autocmd BufEnter * ++nested call s:hijack_directory()
+	autocmd!
+	autocmd BufEnter * ++nested call s:hijack_directory()
 augroup END
 
 function! s:hijack_directory() abort
-  let path = expand('%:p')
-  if !isdirectory(path)
-    return
-  endif
-  bwipeout %
-  execute printf('Fern %s', fnameescape(path))
+	let path = expand('%:p')
+	if !isdirectory(path)
+		return
+	endif
+	bwipeout %
+	execute printf('Fern %s', fnameescape(path))
 endfunction
 
 " Custom settings and mappings.
 noremap <silent> <Leader>f :Fern . -drawer -reveal=% -toggle -width=35<CR><C-w>=
 
 function! FernInit() abort
-  nmap <buffer><expr>
-        \ <Plug>(fern-my-open-expand-collapse)
-        \ fern#smart#leaf(
-        \   "\<Plug>(fern-action-open:select)",
-        \   "\<Plug>(fern-action-expand)",
-        \   "\<Plug>(fern-action-collapse)",
-        \ )
-  nmap <buffer> <CR> <Plug>(fern-my-open-expand-collapse)
-  nmap <buffer> <2-LeftMouse> <Plug>(fern-my-open-expand-collapse)
-  nmap <buffer> n <Plug>(fern-action-new-path)
-  nmap <buffer> d <Plug>(fern-action-remove)
-  nmap <buffer> m <Plug>(fern-action-move)
-  nmap <buffer> M <Plug>(fern-action-rename)
-  nmap <buffer> h <Plug>(fern-action-hidden-toggle)
-  nmap <buffer> r <Plug>(fern-action-reload)
-  nmap <buffer> k <Plug>(fern-action-mark)
-  nmap <buffer> K <Plug>(fern-action-mark-children:leaf)
-  nmap <buffer> b <Plug>(fern-action-open:split)
-  nmap <buffer> v <Plug>(fern-action-open:vsplit)
-  nmap <buffer><nowait> < <Plug>(fern-action-leave)
-  nmap <buffer><nowait> > <Plug>(fern-action-enter)
+	nmap <buffer><expr>
+				\ <Plug>(fern-my-open-expand-collapse)
+				\ fern#smart#leaf(
+				\   "\<Plug>(fern-action-open:select)",
+				\   "\<Plug>(fern-action-expand)",
+				\   "\<Plug>(fern-action-collapse)",
+				\ )
+	nmap <buffer> <CR> <Plug>(fern-my-open-expand-collapse)
+	nmap <buffer> <2-LeftMouse> <Plug>(fern-my-open-expand-collapse)
+	nmap <buffer> n <Plug>(fern-action-new-path)
+	nmap <buffer> d <Plug>(fern-action-remove)
+	nmap <buffer> m <Plug>(fern-action-move)
+	nmap <buffer> M <Plug>(fern-action-rename)
+	nmap <buffer> h <Plug>(fern-action-hidden-toggle)
+	nmap <buffer> r <Plug>(fern-action-reload)
+	nmap <buffer> k <Plug>(fern-action-mark)
+	nmap <buffer> K <Plug>(fern-action-mark-children:leaf)
+	nmap <buffer> b <Plug>(fern-action-open:split)
+	nmap <buffer> v <Plug>(fern-action-open:vsplit)
+	nmap <buffer><nowait> < <Plug>(fern-action-leave)
+	nmap <buffer><nowait> > <Plug>(fern-action-enter)
 endfunction
 
 augroup FernGroup
+	autocmd!
+	autocmd FileType fern call FernInit()
+augroup END
+
+augroup my-glyph-palette
   autocmd!
-  autocmd FileType fern call FernInit()
+  " Apply to Fern buffers
+  autocmd FileType fern call glyph_palette#apply()
+  " Optional: Apply to other plugins like NERDTree or Startify if you use them
+  autocmd FileType nerdtree,startify call glyph_palette#apply()
 augroup END
 
 " .............................................................................
@@ -598,17 +633,17 @@ xmap gr <plug>(GrepperOperator)
 " replace. It's similar to <leader>r except this one applies to all matches
 " across all files instead of just the current file.
 nnoremap <Leader>R
-  \ :let @s='\<'.expand('<cword>').'\>'<CR>
-  \ :Grepper -cword -noprompt<CR>
-  \ :cfdo %s/<C-r>s//g \| update
-  \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+			\ :let @s='\<'.expand('<cword>').'\>'<CR>
+			\ :Grepper -cword -noprompt<CR>
+			\ :cfdo %s/<C-r>s//g \| update
+			\<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 
 " The same as above except it works with a visual selection.
 xmap <Leader>R
-    \ "sy
-    \ gvgr
-    \ :cfdo %s/<C-r>s//g \| update
-     \<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+			\ "sy
+			\ gvgr
+			\ :cfdo %s/<C-r>s//g \| update
+			\<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 
 " .............................................................................
 " ntpeters/vim-better-whitespace
@@ -651,9 +686,9 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 " .............................................................................
 
 if has('nvim')
-  let test#strategy='neovim'
+	let test#strategy='neovim'
 else
-  let test#strategy='vimterminal'
+	let test#strategy='vimterminal'
 endif
 
 let test#python#pytest#executable='docker-compose exec web py.test'
@@ -687,10 +722,14 @@ set noshowmode " Hide the default mode text (e.g. -- INSERT -- below the statusl
 
 let g:fern_disable_startup_warnings = 1
 let g:vim_tmux_clipboard#loadb_option = '-w'
-" powerline-status
-"python from powerline.vim import setup as powerline_setup
-"python powerline_setup()
-"python del powerline_setup
-filetype plugin on
+
+filetype plugin indent on
 set omnifunc=syntaxcomplete#Complete
 set rtp^=/usr/share/vimpager
+
+" fern
+let g:nerdfont#autofix_cellwidths = 1
+let g:nerdfont#directory#customs = {
+\  'open': '',
+\  'close': '',
+\ }
