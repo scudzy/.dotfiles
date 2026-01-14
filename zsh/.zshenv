@@ -1,7 +1,7 @@
 # ~/.zshenv should only be a one-liner that sources this file
 # echo "source ~//.config/zsh/.zshenv" >| ~//.zshenv
-export ZDOTDIR="/home/scudzy/.dotfiles/zsh"
-export DOTFILES="/home/scudzy/.dotfiles"
+export ZDOTDIR="$HOME/.dotfiles/zsh"
+export DOTFILES="$HOME/.dotfiles"
 
 # If you come from bash you might have to change your $PATH.
 export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT:$GOPATH:$PATH"
@@ -45,25 +45,23 @@ export SCREENDIR="${XDG_RUNTIME_DIR}screen"
 ### tmux
 export TMUX_TMPDIR="${XDG_RUNTIME_DIR}tmux"
 export ZSH_TMUX_CONFIG="${XDG_CONFIG_HOME}/tmux/tmux.conf"
-#export ZSH_TMUX_CONFIG="~/.dotfiles/.tmux/.tmux.conf"
-#export TMUX_CONF="~/.dotfiles/.tmux/.tmux.conf"
 
 # user-dirs
 if [[ "$OSTYPE" == linux-gnu ]]; then
-  export XDG_DESKTOP_DIR="~/Users/Desktop"
-  export XDG_DOCUMENTS_DIR="~/Users/Documents"
-  export XDG_DOWNLOAD_DIR="~/Users/Downloads"
-  export XDG_MUSIC_DIR="~/Users/Music"
-  export XDG_PICTURES_DIR="~/Users/Pictures"
-  export XDG_VIDEOS_DIR="~/Users/Videos"
+  export XDG_DESKTOP_DIR="$HOME/Users/Desktop"
+  export XDG_DOCUMENTS_DIR="$HOME/Users/Documents"
+  export XDG_DOWNLOAD_DIR="$HOME/Users/Downloads"
+  export XDG_MUSIC_DIR="$HOME/Users/Music"
+  export XDG_PICTURES_DIR="$HOME/Users/Pictures"
+  export XDG_VIDEOS_DIR="$HOME/Users/Videos"
 fi
 
 # bat
 export PAGER="less"
 export BAT_PAGER="less -R -F -+X --mouse"
-export BAT_CONFIG_PATH="/home/scudzy/.config/bat/config"
-export BAT_CONFIG_DIR="/home/scudzy/.config/bat"
-export BAT_THEME="DarkNeon"
+export BAT_CONFIG_PATH="$HOME/.config/bat/config"
+export BAT_CONFIG_DIR="$HOME/.config/bat"
+export BAT_THEME="Dracula"
 export MANPAGER="less -R --use-color -Dd+r -Du+g -S"
 # export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANPATH="/usr/share/man:~/.local/share/zinit/polaris/man:~/.local/share/zinit/plugins/tj---git-extras/man"
@@ -77,13 +75,13 @@ export GOPROXY='https://proxy.golang.org,direct'
 
 ### python
 # export PYTHONHOME="/usr/lib/python3.11"
-export PYTHONPATH="/home/scudzy/.local/lib/python3.13/site-packages"
-export PYTHONSTARTUP="/home/scudzy/.dotfiles/.pythonrc"
+export PYTHONPATH="$HOME/.local/lib/python3.13/site-packages"
+export PYTHONSTARTUP="$HOME/.dotfiles/.pythonrc"
 
 ### pass
-export PASSWORD_STORE_DIR="/home/scudzy/.password-store"
+export PASSWORD_STORE_DIR="$HOME/.password-store"
 export PASSWORD_STORE_ENABLE_EXTENSIONS="true"
-export PASSWORD_STORE_EXTENSIONS_DIR="/home/scudzy/.password-store/.extensions"
+export PASSWORD_STORE_EXTENSIONS_DIR="$HOME/.password-store/.extensions"
 export PASSWORD_STORE_GENERATED_LENGTH="20"
 # export PASSWORD_STORE_TOMB="/usr/bin/tomb"
 # export PASSWORD_STORE_TOMB_FILE="~/.password.tomb"
@@ -116,7 +114,7 @@ export NO_AT_BRIDGE=1
 
 ### hisory bash or zsh
 # export HISTFILE="/.local/state/bash/history"
-export HISTFILE="/home/scudzy/.local/state/zsh/.zsh_history"
+export HISTFILE="$HOME/.local/state/zsh/.zsh_history"
 export HISTSIZE=100000; # Larger bash history (allow 32³ entries; default is 500)
 export HISTFILESIZE=$HISTSIZE;
 export HISTCONTROL=ignoredups; # Remove duplicates from history. I use `git status` a lot.
@@ -129,7 +127,7 @@ export LANG="en_US.UTF-8"; # Language formatting is still important
 export LC_ALL="en_US.UTF-8"; # byte-wise sorting and force language for those pesky apps
 
 # set options for less
-export LESS="--quit-if-one-screen --ignore-case --status-column --LONG-PROMPT --RAW-CONTROL-CHARS --HILITE-UNREAD --tabs=4 --no-init --window=-4"
+# export LESS="--quit-if-one-screen --ignore-case --status-column --LONG-PROMPT --RAW-CONTROL-CHARS --HILITE-UNREAD --tabs=4 --no-init --window=-4"
 # or the short version
 export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 
@@ -145,14 +143,13 @@ export RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-
 #export RG_PREFIX="rg --column -n --no-heading --color=always -S --max-columns=150 "
 
 ### Powerline-status
-export POWERLINE_LOCATION="/home/scudzy/.local/share/pipx/venvs/powerline-status/bin/powerline"
-export POWERLINE_CONFIG_COMMAND="/home/scudzy/.local/bin/powerline-config"
+export POWERLINE_LOCATION="$HOME/.local/share/pipx/venvs/powerline-status/bin/powerline"
+export POWERLINE_CONFIG_COMMAND="$HOME/.local/bin/powerline-config"
 export POWERLINE_ZSH_CONTINUATION="1"
 export POWERLINE_ZSH_SELECT="1"
 
 ### p10k & Gitstatus
 export POWERLEVEL9K_DISABLE_GITSTATUS="true"
-# export GITSTATUS_DAEMON="/home/scudzy/.local/share/zinit/plugins/romkatv---powerlevel10k/gitstatus/usrbin/gitstatusd"
 export GITSTATUS_LOG_LEVEL=DEBUG
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 export POWERLEVEL9K_VCS_MAX_INDEX_SIZE=10000000
@@ -176,7 +173,7 @@ export RUBYLIB="/usr/lib/x86_64-linux-gnu/ruby/vendor_ruby/"
 ### GWSL
 export QT_SCALE_FACTOR=2
 export fdatetime="$(date +%d%m%Y-%H%M)"
-export NVM_DIR="~/.config/nvm"
+export NVM_DIR="$HOME/.config/nvm"
 export NVM_RC_VERSION="v25.2.1"
-export EZA_CONFIG_DIR="~/.config/eza"
+export EZA_CONFIG_DIR="$HOME/.config/eza"
 export ZSH_COLORIZE_TOOL="chroma"
