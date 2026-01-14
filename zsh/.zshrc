@@ -295,20 +295,6 @@
           cmd="${cmd##*conf.}"
           type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
   done
-
-### ---------- Checking Login v.s. Non-Login ---------- ###
-  if [[ -o Login ]]; then
-      echo "Login"
-      echo ""
-      fastfetch -c ~/.config/fastfetch/archey.jsonc
-      # gotcha
-      echo ""
-  else
-      echo "Non-Login"
-      echo ""
-      fastfetch -c ~/.config/fastfetch/examples/8.jsonc
-      echo ""
-  fi
 ########################## End of zinit line #############################
 
 # xterm modes
@@ -375,8 +361,23 @@
       atload'zinit creinstall ~/.dotfiles/zsh/completions > /dev/null 2>&1'
   zinit snippet /dev/null
 
+### ---------- Checking Login v.s. Non-Login ---------- ###
+  if [[ -o Login ]]; then
+      echo "Login"
+      echo ""
+      fastfetch -c ~/.config/fastfetch/archey.jsonc
+      # gotcha
+      echo ""
+  else
+      echo "Non-Login"
+      echo ""
+      fastfetch -c ~/.config/fastfetch/examples/8.jsonc
+      echo ""
+  fi
+
 # omp
-  eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
+  # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
+  eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/patriksvensson.omp.json)"
 
 # Only show the message if the shell is interactive
   if [[ -o interactive ]]; then
@@ -397,3 +398,5 @@
 
 # Show zprof results if it was loaded
   #zprof
+
+. "$HOME/.local/share/../bin/env"
