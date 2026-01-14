@@ -124,3 +124,6 @@ leaks.json
 
 # go
 */go/
+
+# tmux
+swap-pane
