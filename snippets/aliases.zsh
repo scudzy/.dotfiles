@@ -341,7 +341,7 @@ alias gppghglab="git push origin main && git push gitlab main"
 alias gppglabgh="git push origin main && git push github main"
 
 # st4
-alias subl='/c/Program\ Files/Sublime\ Text/subl.exe'
+alias subl='/c/Program\ Files/Sublime\ Text/subl.exe &'
 alias zshrc='subl $(wslpath -w ~/.zshrc)'
 alias zshenv='subl $(wslpath -w ~/.zshenv)'
 alias zprofile='subl $(wslpath -w ~/.zprofile)'
