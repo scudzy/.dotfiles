@@ -46,3 +46,12 @@ lfcd () {
     # `command` is needed in case `lfcd` is aliased to `lf`
     cd "$(command lf -print-last-dir "$@")"
 }
+
+# Function to translate Malay to English using translate-shell
+tme() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: tme 'text to translate' or tme word"
+        return 1
+    fi
+    trans ms:en "$@"
+}
