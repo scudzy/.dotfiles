@@ -134,8 +134,7 @@
   fi
 # Use your existing Zinit plugin for Man colors
 
-# Define the NVM directory (keep your XDG logic)
-  export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+
 
 # Load extra completions (Turbo Mode)
   zinit ice wait'0' lucid blockf atpull'zinit creinstall -q .'
@@ -379,6 +378,11 @@
   # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
   eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/patriksvensson.omp.json)"
 
+# translate-shell completion
+  compdef _gnu_generic trans
+
+
+
 # Only show the message if the shell is interactive
   if [[ -o interactive ]]; then
       # \n at the start adds a space before, \n at the end adds a space after
@@ -399,4 +403,8 @@
 # Show zprof results if it was loaded
   #zprof
 
-. "$HOME/.local/share/../bin/env"
+
+
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
