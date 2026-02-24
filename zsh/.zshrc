@@ -31,6 +31,9 @@
   export ZDOTDIR="$DOTFILES/zsh"
   export SNIPPETS="$DOTFILES/snippets"
   export FZF_BASE="$HOME/.local/share/zinit/plugins/junegunn---fzf"
+  export PATH="$FZF_BASE:$PATH"
+  export _ZL_FZF="fzf"
+  export _ZL_MATCH_MODE=1
 
 # 3. TURBO MODE FOR PLUGINS
 # Load the prompt IMMEDIATELY so you see a shell fast
@@ -212,8 +215,12 @@
       atclone'mv -vf fastfetch*/usr/share/man/man1/fastfetch.1 ${ZINIT[MAN_DIR]}/man1'
   zinit light fastfetch-cli/fastfetch
 
-### Install z.lua
-  zinit ice wait'!0'
+# Add this to confirm fzf is on PATH when z.lua loads
+  zinit ice wait'!0' atinit'
+      export PATH="$HOME/.local/share/zinit/plugins/junegunn---fzf:$PATH"
+      export _ZL_FZF="fzf"
+      export _ZL_FZF_FLAG="--height 40% --reverse --border --ansi"
+  ' lucid
   zinit light skywind3000/z.lua
 
 ### b4b4r07/httpstat
@@ -381,8 +388,6 @@
 # translate-shell completion
   compdef _gnu_generic trans
 
-
-
 # Only show the message if the shell is interactive
   if [[ -o interactive ]]; then
       # \n at the start adds a space before, \n at the end adds a space after
@@ -402,8 +407,6 @@
 
 # Show zprof results if it was loaded
   #zprof
-
-
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
