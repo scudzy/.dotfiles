@@ -222,6 +222,8 @@ hi SpellLocal cterm=underline ctermfg=203 guifg=#ff5f5f
 hi SpellRare cterm=underline ctermfg=203 guifg=#ff5f5f
 hi SpellCap cterm=underline ctermfg=203 guifg=#ff5f5f
 
+"let g:plug_threads = 1  " Force sequential updates to prevent DNS flooding
+
 " -----------------------------------------------------------------------------
 " Status line
 " -----------------------------------------------------------------------------
