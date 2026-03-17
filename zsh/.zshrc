@@ -1,13 +1,13 @@
 # .zshrc
-# 1. Start the timer using Zsh built-ins (Faster than calling 'date')
+# Start the timer using Zsh built-ins (Faster than calling 'date')
   zmodload zsh/datetime
   start=$EPOCHREALTIME
 
-# 2. Load Profiler (Only if you need to debug; otherwise, comment it out)
-  zmodload zsh/zprof
+# Load Profiler (Only if you need to debug; otherwise, comment it out)
+  # zmodload zsh/zprof
 # This tells Zinit to skip its internal compinit call.
   ZINIT_COMPINIT_SKIP=1
-# 1. COMPLETION CACHING (Place this at the VERY top)
+# COMPLETION CACHING (Place this at the VERY top)
 # This prevents compinit from running 3 times and skips disk scans if the cache is fresh.
   autoload -Uz compinit
   if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
@@ -26,7 +26,7 @@
   fi
   source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 
-# 4. Define Paths and fpath
+# Define Paths and fpath
   export DOTFILES="$HOME/.dotfiles"
   export ZDOTDIR="$DOTFILES/zsh"
   export SNIPPETS="$DOTFILES/snippets"
@@ -34,8 +34,9 @@
   export PATH="$FZF_BASE:$PATH"
   export _ZL_FZF="fzf"
   export _ZL_MATCH_MODE=1
+  export _ZL_FZF_FLAG="--height 40% --reverse --border --ansi"
 
-# 3. TURBO MODE FOR PLUGINS
+# TURBO MODE FOR PLUGINS
 # Load the prompt IMMEDIATELY so you see a shell fast
 ### powerline-go prompt
   # function powerline_precmd() {
@@ -56,10 +57,6 @@
   # fi
 ### powerline-go prompt
 
-# FZF and History (Fixes the 2.2s fzf-history-widget lag)
-  zinit ice wait'0' lucid
-  zinit light Aloxaf/fzf-tab
-
 # Syntax Highlighting & Autosuggestions
   zinit ice wait'0a' lucid
   zinit light zsh-users/zsh-autosuggestions
@@ -67,14 +64,10 @@
   zinit ice wait'0b' lucid
   zinit light zdharma-continuum/fast-syntax-highlighting
 
-# Completions (The "Turbo" way)
-  zinit ice wait'0c' lucid blockf atpull'zinit creinstall -q .'
-  zinit light zsh-users/zsh-completions
-
 # NVM (Fixed Lazy Load)
 # On your Lenovo G50-70, this deferred load prevents the 2s startup lag.
-  zinit ice wait'1' lucid
-  zinit light lukechilds/zsh-nvm
+  # zinit ice wait'1' lucid
+  # zinit light lukechilds/zsh-nvm
 
 # # 3. Powerlevel10k Instant Prompt (Must stay at the top)
 #   if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -99,6 +92,10 @@
 
   #   setopt no_prompt_{bang,subst} prompt_percent  # enable/disable correct prompt expansions
   # }
+
+# load zinit modules
+  zinit light-mode for \
+    zdharma-continuum/zinit-annex-{'readurl','bin-gem-node','patch-dl','rust'}
 
 # --- 3. Load Heavy Plugins (Turbo Mode: 1 second) ---
 # We delay these slightly because they were your main bottlenecks.
@@ -137,15 +134,9 @@
   fi
 # Use your existing Zinit plugin for Man colors
 
-
-
 # Load extra completions (Turbo Mode)
   zinit ice wait'0' lucid blockf atpull'zinit creinstall -q .'
   zinit light zsh-users/zsh-completions
-
-# load zinit modules
-  zinit light-mode for \
-    zdharma-continuum/zinit-annex-{'readurl','bin-gem-node','patch-dl','rust'}
 
 # --- Group 2: The "Heavy" OMZ Libraries ---
 # Use '!' to force load in order
@@ -216,11 +207,7 @@
   zinit light fastfetch-cli/fastfetch
 
 # Add this to confirm fzf is on PATH when z.lua loads
-  zinit ice wait'!0' atinit'
-      export PATH="$HOME/.local/share/zinit/plugins/junegunn---fzf:$PATH"
-      export _ZL_FZF="fzf"
-      export _ZL_FZF_FLAG="--height 40% --reverse --border --ansi"
-  ' lucid
+  zinit ice wait'!0' lucid
   zinit light skywind3000/z.lua
 
 ### b4b4r07/httpstat
@@ -280,6 +267,10 @@
           atclone"
           mv -vf *.1 ${ZINIT[MAN_DIR]}/man1" \
         @junegunn/fzf
+
+# FZF and History (Fixes the 2.2s fzf-history-widget lag)
+  zinit ice wait'0' lucid
+  zinit light Aloxaf/fzf-tab
 
 # Load all FZF variables, functions, and zstyles in the background
   zinit ice wait"0b" lucid
@@ -400,6 +391,14 @@
      ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock"
   fi
 
+# NVM
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# dotenv
+. "$HOME/.local/share/../bin/env"
+
 # Calculate total time
   end=$EPOCHREALTIME
 # Calculate difference (requires zsh/mathfunc or simple arithmetic)
@@ -407,7 +406,3 @@
 
 # Show zprof results if it was loaded
   #zprof
-
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
