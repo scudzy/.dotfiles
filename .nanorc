@@ -1,0 +1,69 @@
+## ~/.nanorc — nano config for WSL2
+## ─── INTERFACE ───────────────────────────────────────────
+
+# Show line numbers on the left side
+set linenumbers
+
+# Show cursor position (line & column) at the bottom
+set constantshow
+
+# Show a scrollbar on the right edge
+set indicator
+
+# Use a visible title bar at the top
+set titlecolor bold,white,blue
+
+# Highlight the line the cursor is on
+set cursorcolor ,cyan
+
+## ─── EDITING BEHAVIOUR ───────────────────────────────────
+
+# Use spaces instead of tab characters (tab = 4 spaces)
+set tabsize 4
+set tabstospaces
+
+# Auto-indent new lines to match the line above
+set autoindent
+
+# Allow using the mouse to click and position the cursor
+set mouse
+
+# Remember cursor position when reopening a file
+set positionlog
+
+# Enable smart Home key: first press goes to first non-whitespace char
+set smarthome
+
+# Soft-wrap long lines instead of scrolling horizontally
+set softwrap
+
+# Don't create backup files (e.g. file.txt~)
+unset backup
+
+## ─── SEARCH & REPLACE ────────────────────────────────────
+
+# Make search case-insensitive by default
+set casesensitive         # remove this line to make it case-INsensitive
+
+# Use regex (pattern matching) in search by default — remove if unwanted
+## set regexp
+
+## ─── KEY BINDINGS ─────────────────────────────────────────
+
+# More familiar shortcuts (similar to common text editors)
+bind ^Z undo main           # Ctrl+Z = Undo
+bind ^Y redo main           # Ctrl+Y = Redo (nano default uses Ctrl+Z/E)
+bind ^F whereis main        # Ctrl+F = Find/Search
+bind ^H replace main        # Ctrl+H = Find & Replace
+bind ^D del main            # Ctrl+D = Delete character forward
+bind ^Q exit main           # Ctrl+Q = Quit
+
+## ─── SYNTAX HIGHLIGHTING ─────────────────────────────────
+## These pull in colour-coded highlighting for common file types.
+## The path below is standard for Ubuntu/Debian in WSL2.
+
+include "/usr/share/nano/*.nanorc"
+
+## Uncomment below if you have nano-syntax-highlighting installed
+## (install with: sudo apt install nano-syntax-highlighting)
+## include "/usr/share/nano-syntax-highlighting/*.nanorc"
