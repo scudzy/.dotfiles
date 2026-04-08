@@ -132,8 +132,8 @@ export LC_ALL="en_US.UTF-8"; # byte-wise sorting and force language for those pe
 export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 
 # Default apps
-export EDITOR="vim"
-export VISUAL="vim"
+export EDITOR="nano"
+export VISUAL="nano"
 export BROWSER="/c/Program Files/Google/Chrome/Application/chrome.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
