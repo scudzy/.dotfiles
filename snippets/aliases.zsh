@@ -298,12 +298,12 @@ alias brewi="brew install $@ -v"
 alias brewun="brew uninstall $@ -v"
 
 # rclone
-alias rcl1="rclone about G-scudzy: && printf '\e[1;31mscudzy@gmail.com \e[0m'"
-alias rcl2="rclone about G-mhmk770922: && printf '\e[1;34mmhmk770922@gmail.com \e[0m'"
-alias rcl3="rclone about G-halimi: && printf '\e[1;34mhalimi@barikatech.com \e[0m'"
-alias rcl4="rclone about O-scudzy: && printf '\e[1;31mscudzy@outlook.com \e[0m'"
-alias rcl5="rclone about D-scudzy: && printf '\e[1;31mDropbox-scudzy \e[0m'"
-alias rcl6="rclone about mega-scudzy: && printf '\e[1;31mMega-scudzy \e[0m'"
+alias rcl1="rclone about G-scudzy: && printf '\e[1;31mscudzy@gmail.com \e[0m\n'"
+alias rcl2="rclone about G-mhmk770922: && printf '\e[1;34mmhmk770922@gmail.com \e[0m\n'"
+alias rcl3="rclone about G-halimi: && printf '\e[1;34mhalimi@barikatech.com \e[0m\n'"
+alias rcl4="rclone about O-scudzy: && printf '\e[1;31mscudzy@outlook.com \e[0m\n'"
+alias rcl5="rclone about D-scudzy: && printf '\e[1;31mDropbox-scudzy \e[0m\n'"
+alias rcl6="rclone about mega-scudzy: && printf '\e[1;31mMega-scudzy \e[0m\n'"
 
 # search installed packages
 alias dpin="dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n"
