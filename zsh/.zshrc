@@ -375,6 +375,7 @@
 # omp
   # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
   eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/patriksvensson.omp.json)"
+  # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/hul10.omp.json)"
 
 # translate-shell completion
   compdef _gnu_generic trans
