@@ -134,7 +134,7 @@ export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 # Default apps
 export EDITOR="nano"
 export VISUAL="nano"
-export BROWSER="/c/Program Files/Google/Chrome/Application/chrome.exe"
+export BROWSER="/c/Users/scudz/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
 # Ripgrep
