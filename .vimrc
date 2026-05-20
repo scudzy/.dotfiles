@@ -43,7 +43,7 @@ Plug 'lambdalisue/fern.vim'
 Plug 'lambdalisue/fern-mapping-mark-children.vim'
 
 " Core icon library
-Plug 'lambdalisue/nerdfont.vim'
+" Plug 'lambdalisue/nerdfont.vim'
 
 " Fern renderer to display the icons
 Plug 'lambdalisue/vim-fern-renderer-nerdfont'
@@ -158,10 +158,13 @@ Plug 'junegunn/vim-easy-align'
 Plug 'jasonccox/vim-wayland-clipboard'
 
 " Syntax
-Plug 'sheerun/vim-polyglot'
+" Plug 'sheerun/vim-polyglot'
 Plug 'alker0/chezmoi.vim'
 Plug 'petRUShka/vim-sage'
 Plug 'imsnif/kdl.vim'
+
+" Startuptime
+Plug 'dstein64/vim-startuptime'
 
 call plug#end()
 
@@ -177,6 +180,9 @@ if (has("termguicolors"))
 
 	set termguicolors
 endif
+
+" Filetype indent
+filetype plugin indent on
 
 " Enable syntax highlighting.
 syntax on
@@ -725,7 +731,6 @@ set noshowmode " Hide the default mode text (e.g. -- INSERT -- below the statusl
 let g:fern_disable_startup_warnings = 1
 let g:vim_tmux_clipboard#loadb_option = '-w'
 
-filetype plugin indent on
 set omnifunc=syntaxcomplete#Complete
 set rtp^=/usr/share/vimpager
 
