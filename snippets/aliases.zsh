@@ -249,7 +249,7 @@ alias timezsh="time-n-cmd 5 'zsh -i -c exit' 2>&1 > /dev/null"
 # git
 alias gst="git status"
 alias gss="git status -s"
-alias gp="git push --verbose"
+alias gp="git push -v"
 alias gitlg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gcom="git commit -m $@"
 alias rmgitd="find . -type d -name ".git" -exec rm -rf {} +"
