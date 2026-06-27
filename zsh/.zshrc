@@ -1,7 +1,9 @@
 # .zshrc
 # Start the timer using Zsh built-ins (Faster than calling 'date')
+# Capture start time in milliseconds
+  ZSH_START_TIME=$(( $(gdate +%s%N 2>/dev/null || date +%s%N) / 1000000 ))
+
   zmodload zsh/datetime
-  start=$EPOCHREALTIME
 
 # Load Profiler (Only if you need to debug; otherwise, comment it out)
   # zmodload zsh/zprof
@@ -64,34 +66,6 @@
   zinit ice wait'0b' lucid
   zinit light zdharma-continuum/fast-syntax-highlighting
 
-# NVM (Fixed Lazy Load)
-# On your Lenovo G50-70, this deferred load prevents the 2s startup lag.
-  # zinit ice wait'1' lucid
-  # zinit light lukechilds/zsh-nvm
-
-# # 3. Powerlevel10k Instant Prompt (Must stay at the top)
-#   if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-#   fi
-
-# 1. THEME (No wait/lucid here!)
-# zinit ice depth=1; zinit load romkatv/powerlevel10k
-# [[ ! -f ~/.dotfiles/zsh/.p10k.zsh ]] || source ~/.dotfiles/zsh/.p10k.zsh
-# source ~/gitstatus/gitstatus.plugin.zsh
-
-  # function my_set_prompt() {
-  #   PROMPT='%~%# '
-  #   RPROMPT=''
-
-  #   if gitstatus_query MY && [[ $VCS_STATUS_RESULT == ok-sync ]]; then
-  #     RPROMPT=${${VCS_STATUS_LOCAL_BRANCH:-@${VCS_STATUS_COMMIT}}//\%/%%}  # escape %
-  #     (( VCS_STATUS_NUM_STAGED    )) && RPROMPT+='+'
-  #     (( VCS_STATUS_NUM_UNSTAGED  )) && RPROMPT+='!'
-  #     (( VCS_STATUS_NUM_UNTRACKED )) && RPROMPT+='?'
-  #   fi
-
-  #   setopt no_prompt_{bang,subst} prompt_percent  # enable/disable correct prompt expansions
-  # }
 
 # load zinit modules
   zinit light-mode for \
@@ -380,12 +354,6 @@ eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/chips
 # translate-shell completion
   compdef _gnu_generic trans
 
-# Only show the message if the shell is interactive
-  if [[ -o interactive ]]; then
-      # \n at the start adds a space before, \n at the end adds a space after
-      printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n" $total_time
-  fi
-
 # Symlink Wayland socket if it exists but isn't linked
   if [ -e /wslg/runtime-dir/wayland-0 ] && [ ! -e "$XDG_RUNTIME_DIR/wayland-0" ]; then
      ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0"
@@ -400,10 +368,26 @@ export NVM_DIR="$HOME/.config/nvm"
 # dotenv
 . "$HOME/.local/share/../bin/env"
 
-# Calculate total time
-  end=$EPOCHREALTIME
-# Calculate difference (requires zsh/mathfunc or simple arithmetic)
-  total_time=$(( end - start ))
+# Place this at the absolute bottom of your .zshrc, after all Zinit commands
+
+# Time profiles
+# Place this at the very end of your .zshrc
+_print_shell_load_time() {
+    # Calculate end time
+    ZSH_END_TIME=$(( $(gdate +%s%N 2>/dev/null || date +%s%N) / 1000000 ))
+    ZSH_LOAD_TIME=$(( ZSH_END_TIME - ZSH_START_TIME ))
+    ZSH_LOAD_SECONDS=$(( ZSH_LOAD_TIME / 1000.0 ))
+
+    # Print the message
+    printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n\n" "$ZSH_LOAD_SECONDS"
+
+    # Self-destruct so it only runs once on shell startup, not on every command
+    add-zsh-hook -d precmd _print_shell_load_time
+}
+
+# Load the hook module and register the function
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _print_shell_load_time
 
 # Show zprof results if it was loaded
   #zprof
