@@ -103,7 +103,6 @@ export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
 # export COWPATH="/usr/share/cowsay/cows/"
 
 # wsl2 display
-export WSL2IP="$(ip addr show eth2 | grep inet | awk '{print $2; exit;}' | sed 's/\(.*\).\{3\}$/\1/' )"
 # export DISPLAY=:0
 export NO_AT_BRIDGE=1
 
