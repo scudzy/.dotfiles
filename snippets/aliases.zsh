@@ -336,9 +336,9 @@ alias golazou='curl -fsSL https://raw.githubusercontent.com/0xjuanma/golazo/main
 alias witrup='curl -fsSL https://raw.githubusercontent.com/pranshuparmar/witr/main/install.sh | bash'
 
 # gh origin glab main
-alias gppghglab="git push origin main && git push gitlab main"
+alias gppghglab="git push origin main -v && git push gitlab main -v"
 # glab origin gh main
-alias gppglabgh="git push origin main && git push github main"
+alias gppglabgh="git push origin main -v && git push github main -v"
 
 # st4
 alias subl='/c/Program\ Files/Sublime\ Text/subl.exe &'
