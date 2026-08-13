@@ -33,8 +33,8 @@ export GDK_BACKEND=x11
 # Ensure GWSL's target routing variable remains established
 # (If GWSL's Distro Tool injected a rule, this works alongside it)
 # export DISPLAY=$(ip route list default | awk '{print $3}'):0.0
-export DISPLAY=$(ip -4 addr show eth0 | awk '/inet / {print $2}' | cut -d/ -f1):0.0
-# export DISPLAY=127.0.0.1:0.0
+# export DISPLAY=$(ip -4 addr show eth1 | awk '/inet / {print $2}' | cut -d/ -f1):0.0
+export DISPLAY=127.0.0.1:0.0
 # Adjust the number (96, 120, or 144) until it looks right on the 24" screen
 export QT_FONT_DPI=96
 
