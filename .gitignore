@@ -1,3 +1,40 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Private Keys
+*.pem
+*.key
+*.p12
+id_rsa
+id_ed25519
+
+# Cloud Credentials
+.aws/
+.gcloud/
+kubeconfig
+serviceAccountKey.json
+
+# Secret Config Files
+secrets.yaml
+secrets.yml
+credentials.json
+config/secrets.*
+
+# Logs
+*.log
+logs/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE & OS
+.idea/
+
 # Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
@@ -71,10 +108,6 @@ zplugins/
 *.rar
 *.tar
 *.zip
-
-# Logs #
-######################
-*.log
 
 # OS generated files #
 ######################
