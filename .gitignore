@@ -127,3 +127,5 @@ leaks.json
 
 # tmux
 swap-pane
+.tmux/plugins/*
+!.tmux/plugins/tpm

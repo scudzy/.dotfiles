@@ -1,0 +1,217 @@
+data:
+  binaries:
+    apt: /usr/bin/apt
+    aws: ""
+    bat: /home/scudzy/.local/share/zinit/polaris/bin/bat
+    brew: ""
+    btop: ""
+    bw: ""
+    cargo: /home/scudzy/.cargo/bin/cargo
+    cargo-install-update: /home/scudzy/.cargo/bin/cargo-install-update
+    chezmoi: /home/scudzy/.local/bin/chezmoi
+    cloc: ""
+    curl: /usr/bin/curl
+    delta: /home/scudzy/.local/share/zinit/polaris/bin/delta
+    doge: /home/scudzy/.cargo/bin/doge
+    duf: ""
+    dust: /home/scudzy/.local/share/zinit/plugins/bootandy---dust/dust
+    eza: /home/scudzy/.local/share/zinit/plugins/eza-community---eza/eza
+    fd: /home/scudzy/.local/share/zinit/polaris/bin/fd
+    fish: ""
+    fzf: /home/scudzy/.local/share/zinit/plugins/junegunn---fzf/fzf
+    git: /usr/bin/git
+    go: /home/scudzy/go/bin/go
+    gpg: /usr/bin/gpg
+    hyper: ""
+    jq: /home/scudzy/.local/share/zinit/polaris/bin/jq
+    kitty: ""
+    kubectl: ""
+    podman: ""
+    python3: /usr/bin/python3
+    ranger: ""
+    rg: /home/scudzy/.local/share/zinit/plugins/BurntSushi---ripgrep/rg/rg
+    starship: ""
+    tmux: /usr/bin/tmux
+    vim: /usr/bin/vim
+    yc: ""
+    yq: ""
+  configurable:
+    apt: false
+    aws: false
+    bat: true
+    brew: true
+    btop: false
+    bw: false
+    cargo: true
+    cargo-install-update: false
+    chezmoi: true
+    cloc: false
+    curl: false
+    delta: true
+    doge: false
+    duf: false
+    dust: false
+    eza: true
+    fd: false
+    fish: true
+    fzf: true
+    git: true
+    go: true
+    gpg: true
+    hyper: true
+    jq: false
+    kitty: true
+    kubectl: true
+    podman: true
+    python3: true
+    ranger: true
+    rg: true
+    starship: true
+    tmux: true
+    vim: true
+    yc: true
+    yq: false
+  configure:
+    bat: true
+    brew: false
+    cargo: true
+    chezmoi: true
+    delta: true
+    eza: true
+    fish: false
+    fzf: true
+    git: true
+    go: true
+    gpg: true
+    hyper: false
+    kitty: false
+    kubectl: false
+    podman: false
+    python3: true
+    ranger: false
+    rg: true
+    starship: false
+    tmux: true
+    vim: true
+    yc: false
+  configureList:
+  - bat           | A cat(1) clone with wings
+  - cargo         | The Rust package manager
+  - chezmoi       | Manage your dotfiles across multiple diverse machines, securely
+  - eza           | A modern alternative to ls
+  - fzf           | A command-line fuzzy finder
+  - git           | A version control system
+  - git-delta     | A syntax-highlighting pager for git, diff, grep, and blame output
+  - gnupg         | The GNU Privacy Guard
+  - go            | The Go programming language
+  - python3       | The Python programming language
+  - ripgrep       | A line-oriented search tool that recursively searches the current directory for a regex pattern
+  - tmux          | A terminal multiplexer
+  - vim           | A lovely text editor
+  install:
+    bat: true
+    btop: false
+    bw: false
+    cargo: true
+    cargo-install-update: true
+    cloc: true
+    curl: true
+    delta: true
+    doge: true
+    duf: false
+    dust: true
+    eza: true
+    fd: true
+    fish: false
+    fzf: true
+    git: true
+    gpg: true
+    jq: true
+    ranger: false
+    rg: true
+    starship: false
+    tmux: true
+    vim: true
+    yq: false
+  installList:
+  - bat           | A cat(1) clone with wings
+  - cargo         | The Rust package manager
+  - cargo-update  | The Rust package manager
+  - cloc          | Count Lines of Code
+  - curl          | A command line tool and library for transferring data with URL syntax
+  - doge          | Reviving A command-line DNS client
+  - dust          | A more intuitive version of du in rust
+  - eza           | A modern alternative to ls
+  - fd-find       | A simple, fast and user-friendly alternative to 'find'
+  - fzf           | A command-line fuzzy finder
+  - git           | A version control system
+  - git-delta     | A syntax-highlighting pager for git, diff, grep, and blame output
+  - gnupg         | The GNU Privacy Guard
+  - jq            | Command-line JSON processor
+  - ripgrep       | A line-oriented search tool that recursively searches the current directory for a regex pattern
+  - tmux          | A terminal multiplexer
+  - vim           | A lovely text editor
+  installable:
+    apt: false
+    aws: false
+    bat: true
+    brew: false
+    btop: true
+    bw: true
+    cargo: true
+    cargo-install-update: true
+    chezmoi: false
+    cloc: true
+    curl: true
+    delta: true
+    doge: true
+    duf: true
+    dust: true
+    eza: true
+    fd: true
+    fish: true
+    fzf: true
+    git: true
+    go: false
+    gpg: true
+    hyper: false
+    jq: true
+    kitty: false
+    kubectl: false
+    podman: false
+    python3: false
+    ranger: true
+    rg: true
+    starship: true
+    tmux: true
+    vim: true
+    yc: false
+    yq: true
+  packages:
+    cargo: {}
+    external: {}
+    script: {}
+  hostType: "desktop"
+  ssh:
+    keysUrl: ""
+  gpg:
+    searchTerm: "gpg"
+    mainKeyId: ""
+    refresh: false
+  git:
+    name: "scudzy"
+    email: "scudzy@icloud.com"
+  unsafe:
+    _: ""
+    gitName: "scudzy"
+    gitEmail: "scudzy@icloud.com"
+
+edit:
+  watch: true
+
+bitwarden:
+  unlock: true
+
+diff:
+  pager: delta
+

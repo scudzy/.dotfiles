@@ -6,17 +6,36 @@
   zmodload zsh/datetime
 
 # Load Profiler (Only if you need to debug; otherwise, comment it out)
-  # zmodload zsh/zprof
+  zmodload zsh/zprof
+  zmodload zsh/stat
+
 # This tells Zinit to skip its internal compinit call.
   ZINIT_COMPINIT_SKIP=1
-# COMPLETION CACHING (Place this at the VERY top)
-# This prevents compinit from running 3 times and skips disk scans if the cache is fresh.
+# # COMPLETION CACHING (Place this at the VERY top)
+# # This prevents compinit from running 3 times and skips disk scans if the cache is fresh.
+#   autoload -Uz compinit
+#   if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+#     compinit -C
+#   else
+#     compinit
+#   fi
+
+  # Fast compinit initialization with 24-hour cache validation
   autoload -Uz compinit
-  if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
-    compinit -C
+  local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+
+  # Check if compdump exists and is less than 24 hours old (mtime -1)
+  if [[ -s "$zcompdump" && $(zstat +mtime "$zcompdump") -gt $(($(date +%s) - 86400)) ]]; then
+    compinit -C -d "$zcompdump"
   else
-    compinit
+    compinit -d "$zcompdump"
   fi
+
+  # Compile zcompdump in the background if uncompiled
+  if [[ -s "$zcompdump" && ! "$zcompdump.zwc" -nt "$zcompdump" ]]; then
+    zcompile "$zcompdump"
+  fi
+  # end of compinit
 
 # Load Zinit
   if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
@@ -261,11 +280,13 @@
           multisrc"~/.cargo/env ~/.dotfiles/snippets/aliases.zsh ~/.dotfiles/snippets/xdg.zsh /etc/grc.zsh"
   zinit light oxipng/oxipng
 
-# dynamic aliases
-  for cmd in g++ gas head make ld ping6 tail traceroute6 $( ls /usr/share/grc/ ); do
-          cmd="${cmd##*conf.}"
-          type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
-  done
+  # dynamic aliases
+  if (( $+commands[grc] )) && [[ -d /usr/share/grc ]]; then
+      for conf in /usr/share/grc/conf.*; do
+          cmd="${conf##*conf.}"
+          (( $+commands[$cmd] )) && alias "$cmd"="grc --colour=auto $cmd"
+      done
+  fi
 ########################## End of zinit line #############################
 
 # xterm modes
@@ -290,16 +311,16 @@
     )
   }
 
-# Load powerline daemon and go-binary asynchronously
-  zinit ice wait"0" lucid atload'powerline-daemon -q'
-  zinit snippet /home/scudzy/.config/powerline/zsh/powerline.zsh
+# # Load powerline daemon and go-binary asynchronously
+#   zinit ice wait"0" lucid atload'powerline-daemon -q'
+#   zinit snippet /home/scudzy/.config/powerline/zsh/powerline.zsh
 
-# Setup powerline-go in a hook
-  precmd_functions+=(powerline_precmd)
-    powerline_precmd() {
-      PS1="$(/usr/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
-    }
-# end of powerline-status
+# # Setup powerline-go in a hook
+#   precmd_functions+=(powerline_precmd)
+#     powerline_precmd() {
+#       PS1="$(/usr/bin/powerline-go -error $? -jobs ${${(%):%j}:-0})"
+#     }
+# # end of powerline-status
 
 # browserpass gnupg
   PIDFOUND=$(pgrep gpg-agent)
@@ -317,9 +338,6 @@
 
 # Disable Oh My Zsh's correction features
   DISABLE_CORRECTION="true"
-
-# direnv
-  eval "$(direnv hook zsh)"
 
 # Slot 0a: Load local functions
   zinit ice wait"0a" lucid as"null" \
@@ -346,44 +364,64 @@
       echo ""
   fi
 
-# omp
-  # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/illusi0n.omp.json)"
-  # eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/craver.omp.json)"
-eval "$(oh-my-posh init zsh --config /home/scudzy/.cache/oh-my-posh/themes/stelbent.minimal.omp.json)"
+  # omp
+    # eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/illusi0n.omp.json)"
+    # eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/craver.omp.json)"
+  eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/stelbent.minimal.omp.json)"
 
 # translate-shell completion
   compdef _gnu_generic trans
 
-# Symlink Wayland socket if it exists but isn't linked
-  if [ -e /wslg/runtime-dir/wayland-0 ] && [ ! -e "$XDG_RUNTIME_DIR/wayland-0" ]; then
-     ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0"
-     ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock"
+  # Create $XDG_RUNTIME_DIR if missing, then symlink Wayland socket
+  if [ -e /wslg/runtime-dir/wayland-0 ]; then
+      export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+      [ ! -d "$XDG_RUNTIME_DIR" ] && mkdir -p -m 700 "$XDG_RUNTIME_DIR" 2>/dev/null
+      ln -sf /wslg/runtime-dir/wayland-0 "$XDG_RUNTIME_DIR/wayland-0" 2>/dev/null
+      ln -sf /wslg/runtime-dir/wayland-0.lock "$XDG_RUNTIME_DIR/wayland-0.lock" 2>/dev/null
   fi
 
-# NVM
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# # NVM
+# export NVM_DIR="$HOME/.config/nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# dotenv
-. "$HOME/.local/share/../bin/env"
+  # Lazy-load NVM
+  export NVM_DIR="$HOME/.config/nvm"
+  nvm() {
+      unset -f nvm node npm yarn
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+      nvm "$@"
+  }
+  node() { nvm >/dev/null; node "$@"; }
+  npm()  { nvm >/dev/null; npm "$@"; }
+  yarn() { nvm >/dev/null; yarn "$@"; }
+
+  # dotenv
+  . "$HOME/.local/share/../bin/env"
+
+  # Use default trigger (type '**' then TAB for fzf, regular TAB otherwise)
+  export FZF_COMPLETION_TRIGGER='**'
+
+  # Re-bind standard Tab key to native Zsh completion
+  bindkey '^I' expand-or-complete
 
 # Place this at the absolute bottom of your .zshrc, after all Zinit commands
 
-# Time profiles
-# Place this at the very end of your .zshrc
-_print_shell_load_time() {
-    # Calculate end time
-    ZSH_END_TIME=$(( $(gdate +%s%N 2>/dev/null || date +%s%N) / 1000000 ))
-    ZSH_LOAD_TIME=$(( ZSH_END_TIME - ZSH_START_TIME ))
-    ZSH_LOAD_SECONDS=$(( ZSH_LOAD_TIME / 1000.0 ))
+  # Time profiles
+  # Place this at the very end of your .zshrc
+  _print_shell_load_time() {
+      # Calculate end time
+      ZSH_END_TIME=$(( $(gdate +%s%N 2>/dev/null || date +%s%N) / 1000000 ))
+      ZSH_LOAD_TIME=$(( ZSH_END_TIME - ZSH_START_TIME ))
+      ZSH_LOAD_SECONDS=$(( ZSH_LOAD_TIME / 1000.0 ))
 
-    # Print the message
-    printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n\n" "$ZSH_LOAD_SECONDS"
+      # Print the message
+      printf "\n\e[1m🚀 Shell loaded in \e[32m%.3f\e[0m \e[1mseconds\e[0m\n\n\n" "$ZSH_LOAD_SECONDS"
 
-    # Self-destruct so it only runs once on shell startup, not on every command
-    add-zsh-hook -d precmd _print_shell_load_time
-}
+      # Self-destruct so it only runs once on shell startup, not on every command
+      add-zsh-hook -d precmd _print_shell_load_time
+  }
 
 # Load the hook module and register the function
 autoload -Uz add-zsh-hook

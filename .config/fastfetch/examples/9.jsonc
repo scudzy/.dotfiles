@@ -4,11 +4,18 @@
         "type": "small"
     },
     "display": {
-        "keyWidth": 11,
+        "key": {
+            "width": 11
+        },
         "bar": {
-            "charElapsed": "=",
-            "charTotal": "-",
+            "char": {
+                "elapsed": "=",
+                "total": "-"
+            },
             "width": 13
+        },
+        "percent": {
+            "type": 2
         }
     },
     "modules": [
@@ -16,11 +23,17 @@
         "separator",
         "memory",
         "swap",
-        "disk",
-        "battery",
+        {
+            "type": "disk",
+            "folders": "/"
+        },
+        {
+            "type": "battery",
+            "key": "Battery"
+        },
         {
             "type": "colors",
-            "paddingLeft": 11,
+            "paddingLeft": 10,
             "symbol": "circle"
         }
     ]

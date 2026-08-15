@@ -21,20 +21,20 @@
 # Syntax mappings: map a certain filename pattern to a language.
 #   Example 1: use the C++ syntax for Arduino .ino files
 #   Example 2: Use ".gitignore"-style highlighting for ".ignore" files
-#--map-syntax "*.ino:C++"
-#--map-syntax ".ignore:Git Ignore"
+--map-syntax "*.ino:C++"
+--map-syntax ".ignore:Git Ignore"
 
 # Set the theme to "TwoDark"
---theme="DarkNeon"
+--theme="OneHalfDark"
 
---terminal-width="120"
+#--terminal-width="120"
 #--chop-long-lines
 
 # Show line numbers, Git modifications and file header (but no grid)
---style="numbers,changes,header,plain"
+--style="numbers,snip,changes,header"
+#--style="numbers,changes,header,plain"
 
 # Use italic text on the terminal (not supported on all terminals)
 --italic-text=always
-
-# Use C++ syntax for Arduino .ino files
---map-syntax "*.ino:C++"
+--decorations=always
+--color=always
