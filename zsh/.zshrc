@@ -215,7 +215,7 @@
   source /home/scudzy/.local/share/zinit/plugins/TunaCuma---zsh-vi-man/zsh-vi-man.plugin.zsh
 
 ### dbrgn/tealdeer
-  zinit ice lucid wait from"gh-r" as"command" pick"tldr" \
+  zinit ice lucid wait from"gh-r" as"command" bpick"tealdeer-linux-x86_64-musl" pick"tldr" \
           mv"tealdeer* -> tldr" \
           dl="https://raw.githubusercontent.com/tealdeer-rs/tealdeer/refs/heads/main/completion/zsh_tealdeer -> _tldr"
   zinit light tealdeer-rs/tealdeer
