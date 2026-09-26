@@ -62,7 +62,7 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
 fi
 
 # bat
-export PAGER="less"
+export PAGER="bat"
 export BAT_PAGER="less -R -F -+X --mouse"
 export BAT_CONFIG_PATH="$HOME/.config/bat/config"
 export BAT_CONFIG_DIR="$HOME/.config/bat"
