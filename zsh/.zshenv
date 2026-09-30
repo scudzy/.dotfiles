@@ -1,7 +1,7 @@
 # ~/.zshenv should only be a one-liner that sources this file
 # echo "source ~//.config/zsh/.zshenv" >| ~//.zshenv
-export ZDOTDIR="$HOME/.dotfiles/zsh"
 export DOTFILES="$HOME/.dotfiles"
+export ZDOTDIR="$HOME/.dotfiles/zsh"
 
 # If you come from bash you might have to change your $PATH.
 export PATH="/home/scudzy/.cargo/bin:/home/scudzy/.huber/bin:/home/scudzy/.local/bin:/home/scudzy/.dotfiles/sh:/c/Windows/System32:/home/scudzy/go/bin:/var/lib/gems/3.1.0/:/home/scudzy/.local/share/npm/bin/:$GOROOT:$GOPATH:$PATH"
