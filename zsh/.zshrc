@@ -429,3 +429,11 @@ add-zsh-hook precmd _print_shell_load_time
 
 # Show zprof results if it was loaded
   #zprof
+
+# pnpm
+export PNPM_HOME='/home/scudzy/.local/share/pnpm'
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
