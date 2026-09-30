@@ -212,6 +212,20 @@ edit:
 bitwarden:
   unlock: true
 
+# Set the custom diff tool
 diff:
-  pager: delta
+  command: "delta"
+  args:
+    - "--pager"
+    - "less -RFX"
 
+# Set the custom secret manager command
+secret:
+  command: "pass"
+  args:
+    - "show"
+
+pinentry:
+  command: "/usr/bin/pinentry"
+
+tempDir: "/home/scudzy/.cache/chezmoi-tmp"
