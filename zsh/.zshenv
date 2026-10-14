@@ -177,7 +177,9 @@ export RUBYLIB="/usr/lib/x86_64-linux-gnu/ruby/vendor_ruby/"
 ### GWSL
 export QT_SCALE_FACTOR=2
 export fdatetime="$(date +%d%m%Y-%H%M)"
-export NVM_DIR="$HOME/.config/nvm"
+# export NVM_DIR="$HOME/.config/nvm"
 export NVM_RC_VERSION="v25.2.1"
 export EZA_CONFIG_DIR="$HOME/.config/eza"
 export ZSH_COLORIZE_TOOL="chroma"
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

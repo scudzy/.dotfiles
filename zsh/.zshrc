@@ -354,7 +354,8 @@
   if [[ -o Login ]]; then
       echo "Login"
       echo ""
-      fastfetch -c ~/.config/fastfetch/archey.jsonc
+      fastfetch
+      #fastfetch -c ~/.config/fastfetch/archey.jsonc
       # gotcha
       echo ""
   else
@@ -386,16 +387,16 @@
 # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
   # Lazy-load NVM
-  export NVM_DIR="$HOME/.config/nvm"
-  nvm() {
-      unset -f nvm node npm yarn
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-      nvm "$@"
-  }
-  node() { nvm >/dev/null; node "$@"; }
-  npm()  { nvm >/dev/null; npm "$@"; }
-  yarn() { nvm >/dev/null; yarn "$@"; }
+  # export NVM_DIR="$HOME/.config/nvm"
+  # nvm() {
+  #     unset -f nvm node npm yarn
+  #     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  #     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  #     nvm "$@"
+  # }
+  # node() { nvm >/dev/null; node "$@"; }
+  # npm()  { nvm >/dev/null; npm "$@"; }
+  # yarn() { nvm >/dev/null; yarn "$@"; }
 
   # dotenv
   . "$HOME/.local/share/../bin/env"
