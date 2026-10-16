@@ -183,3 +183,8 @@ export EZA_CONFIG_DIR="$HOME/.config/eza"
 export ZSH_COLORIZE_TOOL="chroma"
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+# aqicn api
+if [[ -f "$HOME/.env" ]]; then
+    set -a; source "$HOME/.env"; set +a
+fi

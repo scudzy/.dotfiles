@@ -1,0 +1,7 @@
+get-aqi() {
+    local city="${1:?Usage: get-aqi <city>}"
+    local token="${WAQI_TOKEN:?WAQI_TOKEN not set — check ~/.env}"
+    curl -fsS --get --data-urlencode "token=$token" \
+         "https://api.waqi.info/feed/$city/" \
+        | jq '{Location: .data.city.name, AQI: .data.aqi}'
+}

@@ -1,0 +1,23 @@
+import atexit
+import os
+import readline
+import rlcompleter
+
+# Enable Tab key auto-completion for module names and variables
+readline.parse_and_bind("tab: complete")
+
+# Define where to save your command history
+history_path = os.path.expanduser("~/.python_history")
+
+# Load existing history if the file exists
+if os.path.exists(history_path):
+    try:
+        readline.read_history_file(history_path)
+    except OSError:
+        pass
+
+# Set the maximum number of history lines to save
+readline.set_history_length(1000)
+
+# Save history automatically when exiting the terminal
+atexit.register(readline.write_history_file, history_path)
