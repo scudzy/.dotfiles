@@ -141,7 +141,7 @@ alias lgg="eza -lahoT -L=1 --icons --group-directories-first --git --git-repos" 
 alias ffmpegts="sh -c '$DOTFILES/sh/ffmpegts.sh'"
 
 # pass
-alias passgp="pass git push -u --all"
+alias passgp="pass git push -u --all --verbose"
 alias potp="pass otp $@"
 alias pcp="pass -c $@"
 alias psh="pass show $@"
@@ -249,7 +249,7 @@ alias timezsh="time-n-cmd 5 'zsh -i -c exit' 2>&1 > /dev/null"
 # git
 alias gst="git status"
 alias gss="git status -s"
-alias gp="git push -v"
+alias gp="git push --verbose"
 alias gitlg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gcom="git commit -m $@"
 alias rmgitd="find . -type d -name ".git" -exec rm -rf {} +"
