@@ -1,0 +1,19 @@
+#compdef gitignore
+
+_gitignore() {
+    local -a templates
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+    local cache_file="$cache_dir/gitignore_templates"
+    mkdir -p "$cache_dir"
+
+    if [[ ! -f "$cache_file" || $(( EPOCHSECONDS - $(zstat +mtime "$cache_file" 2>/dev/null || echo 0) )) -gt 604800 ]]; then
+        curl -sL https://www.toptal.com/developers/gitignore/api/list | tr "," "\n" > "$cache_file" 2>/dev/null
+    fi
+
+    if [[ -f "$cache_file" ]]; then
+        templates=(${(f)"$(<"$cache_file")"})
+        _describe 'gitignore template' templates
+    fi
+}
+
+_gitignore "$@"
