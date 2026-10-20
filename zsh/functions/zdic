@@ -1,42 +1,80 @@
-#!/bin/bash
-# Function to query dict.org and display output with bat
-# function zdic() {
-  if [[ "$1" = "--help" || "$1" = "-h" ]]; then
-    _zdic_help
-    return 0
-  fi
+# Function to query dictionary definitions and display output with bat
+# Usage: zdic <word>
 
-  if [ -z "$1" ]; then
-    echo "Usage: zdic <word>"
-    echo "Queries dict.org for the meaning of a word and displays it with bat."
-    _zdic_help # Show full help if no input
-    return 1
-  fi
-  echo "Querying dict.org for '$1'..."
-  curl -s "dict://dict.org/d:$1:wn" | bat -p -l http
-# }
-
-# Help text for zdic
 _zdic_help() {
-  cat <<EOF
+  cat <<'EOF'
 zdic <WORD>
 
 Description:
-  Queries dict.org for the meaning of a specified word using the WordNet database.
-  The output is piped to 'bat' for display, which provides syntax highlighting
-  (using 'http' highlighting as a general text formatter) and pagination.
+  Queries online dictionaries for definitions of a specified word.
+  Uses the native 'dict' client (WordNet / GCIDE) with automatic fallback
+  to the Free Dictionary API, styled and displayed through 'bat'.
 
 Arguments:
-  WORD  The word for which to look up the definition (e.g., "hello", "cuckold").
+  WORD  The word to define (e.g., "hello", "serendipity").
 
 Examples:
   zdic hello                  # Look up the definition of "hello"
-  zdic cuckold                # Look up the definition of "cuckold"
   zdic --help                 # Display this help message
-
-Note:
-  The 'bat -l http' option is used as a general text formatter.
-  If you prefer plain text or different highlighting, you might adjust this.
-  For example, 'bat -l text' or just 'bat' (which auto-detects).
 EOF
 }
+
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    _zdic_help
+    return 0
+fi
+
+if [[ -z "$1" ]]; then
+    echo "Usage: zdic <word>"
+    echo "Queries online dictionaries for definitions and displays with bat."
+    _zdic_help
+    return 1
+fi
+
+local word="$1"
+
+# 1. Try native dict client if available (uses configured servers with automatic fallback)
+if (( $+commands[dict] )); then
+    local res
+    res=$(dict -d wn "$word" 2>/dev/null)
+    if [[ -z "$res" || "$res" =~ "No definitions found" ]]; then
+        res=$(dict "$word" 2>/dev/null)
+    fi
+    if [[ -n "$res" && ! "$res" =~ "No definitions found" ]]; then
+        if (( $+commands[bat] )); then
+            echo "$res" | bat -p -l http
+        else
+            echo "$res"
+        fi
+        return 0
+    fi
+fi
+
+# 2. Fallback to HTTPS Free Dictionary API
+if (( $+commands[curl] )); then
+    local api_res
+    api_res=$(curl -fsSL --connect-timeout 4 "https://api.dictionaryapi.dev/api/v2/entries/en/$word" 2>/dev/null)
+    if [[ -n "$api_res" ]] && (( $+commands[jq] )); then
+        local formatted
+        formatted=$(echo "$api_res" | jq -r '
+            .[] |
+            "📖 \(.word) \([.phonetics[].text | select(. != null)][0] // "")\n" +
+            (
+                .meanings[] |
+                "\n  [\(.partOfSpeech)]\n" +
+                ([.definitions[] | "    • " + .definition + (if .example then "\n      e.g. \"" + .example + "\"" else "" end)] | join("\n"))
+            )
+        ' 2>/dev/null)
+        if [[ -n "$formatted" ]]; then
+            if (( $+commands[bat] )); then
+                echo "$formatted" | bat -p -l http
+            else
+                echo "$formatted"
+            fi
+            return 0
+        fi
+    fi
+fi
+
+echo "No definition found for '$word'." >&2
+return 1
