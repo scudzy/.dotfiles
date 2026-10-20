@@ -219,7 +219,7 @@ zinit ice wait"0b" lucid
 zinit snippet "$SNIPPETS/fzf.zsh"
 
 # forgit
-zinit ice wait"1" lucid atload'unalias grc'
+zinit ice wait"1" lucid atload'unalias grc gp gss'
 zinit light 'wfxr/forgit'
 
 # oxipng and snippets
