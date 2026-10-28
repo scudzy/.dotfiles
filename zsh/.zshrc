@@ -309,3 +309,11 @@ _print_shell_load_time() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _print_shell_load_time
 export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH
+
+# pnpm
+export PNPM_HOME='/home/scudzy/.local/share/pnpm'
+case ":$PATH:" in
+  ":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
