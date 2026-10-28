@@ -219,13 +219,16 @@ zinit ice wait"0b" lucid
 zinit snippet "$SNIPPETS/fzf.zsh"
 
 # forgit
-zinit ice wait"1" lucid atload'unalias grc gp gss'
+zinit ice wait"1" lucid atload'unalias grc gp gss; source $SNIPPETS/aliases.zsh'
 zinit light 'wfxr/forgit'
+
+zinit ice wait"1" lucid; zinit snippet "$SNIPPETS/xdg.zsh"
+zinit ice wait"1" lucid; zinit snippet "$HOME/.cargo/env"
+zinit ice wait"1" lucid; zinit snippet "/etc/grc.zsh"
 
 # oxipng and snippets
 zinit ice wait"0b" lucid from"gh-r" \
-        mv"oxipng-*x86_64-unknown-linux-gnu* -> oxipng" \
-        multisrc"~/.cargo/env $SNIPPETS/aliases.zsh $SNIPPETS/xdg.zsh /etc/grc.zsh"
+        mv"oxipng-*x86_64-unknown-linux-gnu* -> oxipng"
 zinit light oxipng/oxipng
 
 # Dynamic aliases for grc
