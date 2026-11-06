@@ -95,7 +95,7 @@ export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 # Default Applications
 export EDITOR="nvim"
 export VISUAL="nvim"
-export BROWSER="/c/Users/scudz/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
+export BROWSER="/c/Users/scudzy/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
 # Ripgrep
