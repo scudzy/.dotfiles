@@ -175,6 +175,5 @@ swap-pane
 .config/chezmoi/chezmoistate.boltdb
 .config/navi/navi.log
 .config/go/telemetry/
-.config/powerline/*.json
 .cache/
 .local/state/
