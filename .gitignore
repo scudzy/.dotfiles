@@ -166,8 +166,6 @@ swap-pane
 # ---------------------------------------------------------------------------
 # Secrets & local state (must never be committed)
 # ---------------------------------------------------------------------------
-# rclone remotes hold credentials even when encrypted
-.config/rclone/rclone.conf
 # clipboard history: CopyQ stores plaintext clipboard contents
 .config/copyq/*.dat
 .config/copyq/copyq.pub
