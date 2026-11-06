@@ -438,7 +438,7 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 
 # tmux-yank: y in copy mode copies the selection to the Windows clipboard
 # (helpers.sh auto-detects clip.exe on WSL, ahead of wl-copy/xclip).
-# gpakosz already uses <prefix>+y to send the top buffer to the clipboard, so
+# already uses <prefix>+y to send the top buffer to the clipboard, so
 # move tmux-yank's prefix-table helpers off that key.
 set -g @yank_line 'C-y'       # <prefix> C-y : copy the current line
 set -g @yank_pane_pwd 'M-y'   # <prefix> M-y : copy the pane's working directory
@@ -447,7 +447,7 @@ set -g @yank_with_mouse 'on'  # dragging a selection copies it too (default)
 # clip.exe expects UTF-16; feed it UTF-16LE so emoji/accents survive the copy
 set -g @override_copy_command 'iconv -f utf-8 -t utf-16le | clip.exe'
 
-# gpakosz's <prefix>+y copies the top buffer with raw UTF-8; route it through the
+# <prefix>+y copies the top buffer with raw UTF-8; route it through the
 # same UTF-16 pipeline. #!important so _apply_important wins over _apply_bindings.
 bind y run -b '"$TMUX_PROGRAM" ${TMUX_SOCKET:+-S "$TMUX_SOCKET"} save-buffer - | iconv -f utf-8 -t utf-16le | clip.exe' #!important
 # set -g @plugin 'erikw/tmux-powerline'
