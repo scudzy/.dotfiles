@@ -110,7 +110,10 @@ export GOOGLE_CLOUD_LOCATION=asia-southeast1
 export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
 export LDFLAGS="-L/usr/lib"
 export CPPFLAGS="-I/usr/include"
-export RUBYLIB="/usr/lib/x86_64-linux-gnu/ruby/vendor_ruby/"
+
+# gem
+export GEM_HOME="/home/scudzy/.local/share/gem/ruby/3.3.0"
+export PATH="$GEM_HOME/bin:$PATH"
 
 # Other Tools
 export NVM_RC_VERSION="v25.2.1"
