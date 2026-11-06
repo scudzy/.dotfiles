@@ -1,8 +1,0 @@
-Invoking /home/scudzy/.config/tmux/plugins//tpm/bin/install_plugins ...
-Already installed "tmux-cpu"
-Already installed "tmux-window-name"
-Already installed "tmux-mem-cpu-load"
-Already installed "tmux-copycat"
-Already installed "tmux-resurrect"
-Already installed "tmux-continuum"
-Already installed "tmux-prefix-highlight"
