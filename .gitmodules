@@ -1,3 +1,31 @@
 [submodule "tpm"]
 	path = .config/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
+
+[submodule "tmux-resurrect"]
+	path = .config/tmux/plugins/tmux-resurrect
+	url = https://github.com/tmux-plugins/tmux-resurrect
+
+[submodule "tmux-window-name"]
+	path = .config/tmux/plugins/tmux-window-name
+	url = https://github.com/ofirgall/tmux-window-name
+
+[submodule "tmux-prefix-highlight"]
+	path = .config/tmux/plugins/tmux-prefix-highlight
+	url = https://github.com/tmux-plugins/tmux-prefix-highlight
+
+[submodule "tmux-mem-cpu-load"]
+	path = .config/tmux/plugins/tmux-mem-cpu-load
+	url = https://github.com/thewtex/tmux-mem-cpu-load
+
+[submodule "tmux-continuum"]
+	path = .config/tmux/plugins/tmux-continuum
+	url = https://github.com/tmux-plugins/tmux-continuum
+
+[submodule "tmux-copycat"]
+	path = .config/tmux/plugins/tmux-copycat
+	url = https://github.com/tmux-plugins/tmux-copycat
+
+[submodule "tmux-cpu"]
+	path = .config/tmux/plugins/tmux-cpu
+	url = https://github.com/tmux-plugins/tmux-cpu
