@@ -31,11 +31,11 @@ The repo mirrors `$HOME`, so paths map 1:1 onto where the files end up:
 |   `-- completions/        #   extra _completion files
 |-- snippets/               # sourced by .zshrc (aliases, options, fzf, xdg, ...)
 |-- sh/                     # helper scripts, placed on PATH by .zshenv
-|-- bash/                   # .bashrc .profile .aliases
-|-- .config/                # XDG configs (bat, eza, fastfetch, nvim, delta, ...)
+|-- .config/                # XDG configs (bash, bat, eza, fastfetch, nvim, tmux, delta, ...)
+|   |-- bash/               #   .bashrc .profile .aliases
+|   `-- tmux/               #   tmux.conf (+ tmux.conf.local overrides)
 |-- .local/share/           # fonts, gnupg configs, XFCE terminal color schemes
 |-- .vim/                   # vim-plug, colors, after/syntax
-|-- .tmux/                  # .tmux.conf (+ .tmux.conf.local overrides)
 `-- etc/                    # system files: wsl.conf, wsl-distribution.conf, resolv.conf
 ```
 
