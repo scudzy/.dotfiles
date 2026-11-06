@@ -356,9 +356,9 @@ $MARKER_END"
 
 install_bash_wiring() {
   info "bash wiring"
-  link "$DOTFILES/bash/.bashrc"  "$HOME/.bashrc"
-  link "$DOTFILES/bash/.profile" "$HOME/.profile"
-  link "$DOTFILES/bash/.aliases" "$HOME/.aliases"   # .bashrc sources ~/.aliases
+  link "$DOTFILES/.config/bash/.bashrc"  "$HOME/.bashrc"
+  link "$DOTFILES/.config/bash/.profile" "$HOME/.profile"
+  link "$DOTFILES/.config/bash/.aliases" "$HOME/.aliases"   # .bashrc sources ~/.aliases
 }
 
 install_etc_zshenv() {
@@ -466,7 +466,7 @@ profile_shell() {
   link "$DOTFILES/.dircolors"    "$HOME/.dircolors"
   link "$DOTFILES/.editorconfig" "$HOME/.editorconfig"
 
-  link "$DOTFILES/.gemrc"        "$HOME/.gemrc"
+  link "$DOTFILES/.config/.gemrc" "$HOME/.gemrc"
   link "$DOTFILES/.pythonrc"     "$HOME/.pythonrc"
   link "$DOTFILES/.tioconfig"    "$HOME/.tioconfig"
 
@@ -518,8 +518,8 @@ profile_full() {
   MANUAL+=("Run :PlugInstall inside vim once")
 
   info "tmux"
-  link "$DOTFILES/.tmux/.tmux.conf"       "$HOME/.tmux.conf"
-  link "$DOTFILES/.tmux/.tmux.conf.local" "$HOME/.tmux.conf.local"
+  link "$DOTFILES/.config/tmux/tmux.conf"       "$HOME/.tmux.conf"
+  link "$DOTFILES/.config/tmux/tmux.conf.local" "$HOME/.tmux.conf.local"
   run mkdir -p "$HOME/.tmux/plugins"
   if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
     run_sh "git clone --depth 1 https://github.com/tmux-plugins/tpm '$HOME/.tmux/plugins/tpm'" \
