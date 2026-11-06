@@ -160,6 +160,9 @@ leaks.json
 swap-pane
 .config/tmux/plugins/tpm_log.txt
 
+# the curated local overrides are not secret; *.local must not swallow them
+!.config/tmux/tmux.conf.local
+
 # ---------------------------------------------------------------------------
 # Secrets & local state (must never be committed)
 # ---------------------------------------------------------------------------
