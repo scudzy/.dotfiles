@@ -7,9 +7,8 @@ if [[ "$(umask)" = "0000" ]]; then
 fi
 
 # Add all local binary paths to the system path.
-export ZDOTDIR="/home/scudzy/dotfiles/.zsh"
+export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-export DOTFILES="/home/scudzy/dotfiles"
 export GOROOT="/usr/local/go"
 export GOPATH="${HOME}/go"
 export PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"

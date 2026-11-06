@@ -1,7 +1,6 @@
 
-HOME="/home/scudzy"
-DOTFILES="$HOME/.dotfiles"
-ZDOTDIR="$DOTFILES/zsh/"
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+ZDOTDIR="${ZDOTDIR:-$DOTFILES/zsh}"
 
 # zsh only aliases
 alias 1='cd -'
@@ -197,8 +196,8 @@ alias wttr4="curl -s 'wttr.in/Kuantan?format=4'"
 # alias tio-com6="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty6"
 
 # rclone
-alias rclGdrvd="rclone --exclude ".git/" sync '/home/scudzy/.dotfiles' 'Gdrive:/dotfiles/Debian' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Debian
-alias rclGdrvu="rclone --exclude ".git/" sync '/home/scudzy/.dotfiles' 'Gdrive:/dotfiles/Ubuntu' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Ubuntu
+alias rclGdrvd="rclone --exclude ".git/" sync "$DOTFILES" 'Gdrive:/dotfiles/Debian' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Debian
+alias rclGdrvu="rclone --exclude ".git/" sync "$DOTFILES" 'Gdrive:/dotfiles/Ubuntu' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Ubuntu
 
 alias rclone-docs="rclone sync '/d/OneDrive/Documents/Business Doc/' 'G-halimi:/Documents/' --transfers=8 --stats=1s --drive-chunk-size=128M --tpslimit=10 --tpslimit-burst=10 --create-empty-src-dirs -u -P -v"
 
@@ -214,7 +213,7 @@ alias pip3u="pip3 uninstall"
 alias p3="python3"
 alias pyupg="pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U"
 
-alias eurofx="curl -LOf https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip && mv -fv eurofxref-hist.zip /home/scudzy/.local/share/pipx/venvs/currencyconverter/lib/python3.13/site-packages/currency_converter/eurofxref-hist.zip"
+alias eurofx="curl -LOf https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip && mv -fv eurofxref-hist.zip $HOME/.local/share/pipx/venvs/currencyconverter/lib/python3.13/site-packages/currency_converter/eurofxref-hist.zip"
 
 # Ubuntu
 #alias pyupg="python3 -m pip freeze --local |sed -rn 's/^([^=# \t\\][^ \t=]*)=.*/echo; echo Processing \1 ...; python3 -m pip install -U \1/p' |sh"  @ debian

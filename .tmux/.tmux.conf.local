@@ -437,7 +437,7 @@ set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
 
 # tmux-resurrect
 set -g @resurrect-hook-post-save-all 'eval $(xdotool getwindowgeometry --shell $WINDOWID); echo 0,$X,$Y,$WIDTH,$HEIGHT > $HOME/.tmux/resurrect/geometry'
-set -g @resurrect-hook-pre-restore-all 'wmctrl -i -r $WINDOWID -e $(cat /home/scudzy/.config/tmux/plugins/tmux-resurrect/resurrect.tmux/geometry)'
+set -g @resurrect-hook-pre-restore-all 'wmctrl -i -r $WINDOWID -e $(cat ~/.config/tmux/plugins/tmux-resurrect/resurrect.tmux/geometry)'
 set -g @resurrect-save 'S'
 set -g @resurrect-restore 'R'
 set -g @resurrect-strategy-vim 'session'

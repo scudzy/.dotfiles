@@ -124,8 +124,8 @@ Thumbs.db
 circle_icon_ffffffff.png
 
 # node
-node_modules
-package.json
+node_modules/
+# package.json + pnpm-lock.yaml ARE tracked (pins gitmoji-cli)
 package-lock.json
 
 # Ignore files containing OAuth tokens
@@ -144,12 +144,10 @@ docker-pass/
 zsh/.zcompdump
 */.zsh_history
 
-# Gitleaks reports
+# Gitleaks reports (the config itself IS tracked)
 *-report.json
 report.json
-*gitleaks*.toml
 leaks.json
-.pre-commit-config.yaml
 
 # VS Code Cache & Local Configs
 .config/Code/
@@ -162,3 +160,19 @@ leaks.json
 swap-pane
 .tmux/plugins/*
 !.tmux/plugins/tpm
+
+# ---------------------------------------------------------------------------
+# Secrets & local state (must never be committed)
+# ---------------------------------------------------------------------------
+# rclone remotes hold credentials even when encrypted
+.config/rclone/rclone.conf
+# clipboard history: CopyQ stores plaintext clipboard contents
+.config/copyq/*.dat
+.config/copyq/copyq.pub
+# caches/state directories with no value on another machine
+.config/chezmoi/chezmoistate.boltdb
+.config/navi/navi.log
+.config/go/telemetry/
+.config/powerline/*.json
+.cache/
+.local/state/

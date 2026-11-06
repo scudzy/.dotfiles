@@ -5,7 +5,7 @@
   helper =
   helper = !/usr/bin/gh auth git-credential
 [include]
-  path = /home/scudzy/.config/delta/themes.gitconfig
+  path = ~/.config/delta/themes.gitconfig
 [diff]
   tool = vimdiff
 [pager]

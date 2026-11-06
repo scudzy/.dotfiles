@@ -76,6 +76,4 @@ if grep -qE "(Microsoft|WSL)" /proc/version &>/dev/null; then
 fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-eval "$(gh completion -s bash)"
-
-source /home/scudzy/dotfiles/.zsh/.zshrc
+command -v gh >/dev/null 2>&1 && eval "$(gh completion -s bash)"
