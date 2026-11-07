@@ -176,3 +176,4 @@ swap-pane
 .cache/
 .local/state/
 .config/configstore/
+.config/mvw/
