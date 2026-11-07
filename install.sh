@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 #
-# install.sh — bootstrap this dotfiles repo into a fresh Debian/WSL2 install.
+# install.sh — bootstrap this dotfiles repo into Debian / WSL2.
 #
+#   ./install.sh --help       show every option
+#   ./install.sh --dry-run    print the complete plan, change nothing
 #   ./install.sh              interactive install
-#   ./install.sh --dry-run    show every action, change nothing
-#   ./install.sh --yes        non-interactive (profile: full)
 #
 # Design notes:
-#   * The zsh config is NOT a symlinked shell.  zsh/.zshenv sets
-#     ZDOTDIR="$DOTFILES/zsh", so ~/.zshrc and friends are read *in place*
-#     from the clone.  The only thing that must exist in $HOME is the
-#     ZDOTDIR pointer in ~/.zshenv (plus /etc/zsh/zshenv for non-login shells).
-#   * Everything else (configs, fonts, scripts) is symlinked, never copied,
-#     so `git pull` updates the live system.  Existing files are backed up.
-#   * Nothing is ever overwritten silently; nothing is deleted.
+#   * zsh is NOT symlinked. zsh/.zshenv sets ZDOTDIR="$DOTFILES/zsh", so
+#     zsh/.zshrc and friends are read *in place* from the clone. The only
+#     bootstrap files in $HOME are ~/.zshenv and /etc/zsh/zshenv.
+#   * Everything else is symlinked (never copied) so `git pull` is live.
+#   * Existing files are moved to ~/.dotfiles-backup/<timestamp>/ — never
+#     overwritten and never deleted.
+#   * Packages owned by Zinit (see ZINIT_PROVIDES) are NEVER installed via
+#     apt. Zinit owns them from .zshrc; apt stays out of the way.
 #
 set -euo pipefail
 
@@ -29,7 +30,16 @@ readonly BACKUP_ROOT="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly MARKER_BEGIN="# >>> dotfiles install.sh >>>"
 readonly MARKER_END="# <<< dotfiles install.sh <<<"
 
+# Ensure ~/.local/bin and ~/.volta/bin are on PATH during bootstrap
+export VOLTA_HOME="${VOLTA_HOME:-$HOME/.volta}"
+export PATH="$HOME/.local/bin:$VOLTA_HOME/bin:$PATH"
+
+# ---------------------------------------------------------------------------
+# Flags
+# ---------------------------------------------------------------------------
 DRY_RUN=0
+VERBOSE=0
+QUIET=0
 ASSUME_YES=0
 PROFILE=""
 SKIP_PKGS=0
@@ -38,55 +48,90 @@ __PROFILE_RANK=2
 
 # Runtime state
 BACKUP_MADE=0
-declare -a LINKED=()       # successful links
-declare -a SKIPPED=()      # pre-existing, left alone
-declare -a FAILED=()       # errors
-declare -a MANUAL=()       # follow-up steps
+declare -a LINKED=()         # successful links
+declare -a SKIPPED=()        # pre-existing, left alone
+declare -a FAILED=()         # errors
+declare -a MANUAL=()         # follow-up steps
+declare -a UNAVAILABLE=()    # requested but not in any APT repo
+declare -a MISSING_AFTER=()  # still missing after install
+APT_UPDATED=0
+
+# Action journal: every mutation records "<phase>|<command>" here, so
+# --dry-run can render a precise, grouped plan of what would happen.
+PHASE="startup"
+declare -a PLAN_ROWS=()
 
 # ---------------------------------------------------------------------------
 # Output helpers
 # ---------------------------------------------------------------------------
-if [[ -t 1 ]]; then
-  C_RESET=$'\033[0m'; C_BOLD=$'\033[1m'; C_RED=$'\033[31m'
-  C_GREEN=$'\033[32m'; C_YELLOW=$'\033[33m'; C_BLUE=$'\033[34m'; C_DIM=$'\033[2m'
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  C_RESET=$'\033[0m'; C_BOLD=$'\033[1m'; C_DIM=$'\033[2m'
+  C_RED=$'\033[31m'; C_GREEN=$'\033[32m'; C_YELLOW=$'\033[33m'
+  C_BLUE=$'\033[34m'; C_MAGENTA=$'\033[35m'; C_CYAN=$'\033[36m'
 else
-  C_RESET=""; C_BOLD=""; C_RED=""; C_GREEN=""; C_YELLOW=""; C_BLUE=""; C_DIM=""
+  C_RESET=""; C_BOLD=""; C_DIM=""
+  C_RED=""; C_GREEN=""; C_YELLOW=""; C_BLUE=""; C_MAGENTA=""; C_CYAN=""
 fi
 
-info()  { printf '%s\n' "${C_BLUE}==>${C_RESET} ${C_BOLD}$*${C_RESET}"; }
-ok()    { printf '%s\n' "  ${C_GREEN}✔${C_RESET} $*"; }
-warn()  { printf '%s\n' "  ${C_YELLOW}!${C_RESET} $*"; }
-err()   { printf '%s\n' "  ${C_RED}✘${C_RESET} $*" >&2; }
-note()  { printf '%s\n' "  ${C_DIM}$*${C_RESET}"; }
+# Section header. Also sets the current plan phase.
+info()  { PHASE="$*"; if (( QUIET )); then return 0; fi
+          printf '\n%s\n' "${C_CYAN}${C_BOLD}▸ $*${C_RESET}"; }
+
+ok()    { if (( QUIET )); then return 0; fi
+          printf '  %s✔%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
+warn()  { printf '  %s!%s %s\n' "$C_YELLOW" "$C_RESET" "$*"; }
+err()   { printf '  %s✘%s %s\n' "$C_RED" "$C_RESET" "$*" >&2; }
+note()  { if (( QUIET )); then return 0; fi
+          printf '  %s%s%s\n' "$C_DIM" "$*" "$C_RESET"; }
 die()   { err "$*"; exit 1; }
 
-# Run a command, honouring --dry-run.
+# A sub-step line that does NOT start a new plan phase.
+step()  { if (( QUIET )); then return 0; fi
+          printf '  %s•%s %s\n' "$C_CYAN" "$C_RESET" "$*"; }
+
+# Per-item detail, only with --verbose (implied by --dry-run).
+verb()  { if (( VERBOSE && ! QUIET )); then
+            printf '  %s%s%s\n' "$C_DIM" "$*" "$C_RESET"
+          fi; }
+
+# Run a command. Under --dry-run it is journalled and printed instead.
 run() {
   if (( DRY_RUN )); then
-    printf '  %s[dry-run]%s %s\n' "$C_DIM" "$C_RESET" "$*"
+    PLAN_ROWS+=("$PHASE|$*")
+    if (( ! QUIET )); then
+      printf '  %s→ %s%s\n' "$C_CYAN" "$*" "$C_RESET"
+    fi
     return 0
+  fi
+  if (( VERBOSE && ! QUIET )); then
+    printf '  %s$ %s%s\n' "$C_DIM" "$*" "$C_RESET"
   fi
   "$@"
 }
 
-# Run a mutating shell snippet, honouring --dry-run.
+# Same, for an ad-hoc shell snippet.
 run_sh() {
   if (( DRY_RUN )); then
-    printf '  %s[dry-run]%s %s\n' "$C_DIM" "$C_RESET" "$1"
+    PLAN_ROWS+=("$PHASE|$1")
+    if (( ! QUIET )); then
+      printf '  %s→ %s%s\n' "$C_CYAN" "$1" "$C_RESET"
+    fi
     return 0
+  fi
+  if (( VERBOSE && ! QUIET )); then
+    printf '  %s$ %s%s\n' "$C_DIM" "$1" "$C_RESET"
   fi
   bash -c "$1"
 }
 
 confirm() {
-  # confirm "question" [y|n]  — default second arg is n
   local prompt="$1" default="${2:-n}" reply hint
   if (( ASSUME_YES )); then return 0; fi
   if (( DRY_RUN )); then
-    note "(dry-run) assuming '${default}': $prompt"
+    note "would ask: ${prompt} [${default}]"
     [[ "$default" == "y" ]]; return
   fi
-  if [[ ! -t 0 ]]; then return 0; fi   # piped/non-interactive: take the default
+  if [[ ! -t 0 ]]; then return 0; fi
   hint="y/N"; [[ "$default" == "y" ]] && hint="Y/n"
   read -r -p "  ${C_BOLD}?${C_RESET} ${prompt} [${hint}] " reply || reply=""
   reply="${reply:-$default}"
@@ -96,40 +141,83 @@ confirm() {
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # ---------------------------------------------------------------------------
-# Argument parsing
+# Help
 # ---------------------------------------------------------------------------
 usage() {
   cat <<'EOF'
-Usage: install.sh [OPTIONS]
+dotfiles installer — Debian / WSL2
 
-Bootstrap the scudzy dotfiles into a Debian/WSL2 machine.
+USAGE
+  ./install.sh [OPTIONS]
 
-Options:
-  -p, --profile NAME   Install profile: minimal | shell | full (default: ask)
-  -y, --yes            Assume "yes" for every prompt (profile: full)
-  -n, --dry-run        Print every action without changing anything
-      --skip-packages  Do not install any OS packages
-  -h, --help           Show this help and exit
+MODES
+  (no mode flag)        Apply, interactively. Asks for a profile, confirms
+                        privileged steps, and backs up anything it replaces.
+  -n, --dry-run         Print the complete plan and exit without touching
+                        the system. Every command that would run is shown,
+                        grouped by phase, followed by an action count.
+                        Implies --verbose.
+  -h, --help            Print this help and exit.
 
-Profiles:
-  minimal   zsh entry points + DOTFILES, nothing else.
-  shell     minimal + CLI tools, XDG configs, fonts, oh-my-posh.
-  full      shell + vim/nvim, tmux, git, /etc tweaks.
+OPTIONS
+  -p, --profile NAME    minimal | shell | full              [default: ask]
+  -y, --yes             Answer "yes" to every prompt, and default the profile
+                        to "full". For unattended provisioning.
+  -v, --verbose         Narrate every check and decision, including ones that
+                        lead to no action: already installed, already
+                        linked, provided by Zinit.
+  -q, --quiet           Progress only. Prints warnings, errors and summary.
+      --skip-packages   Symlink configuration only; install no OS packages.
 
-Examples:
-  ./install.sh --dry-run
-  ./install.sh --profile shell --yes
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/scudzy/dotfiles/main/install.sh)"
+PROFILES
+  minimal   zsh entry points only: ~/.zshenv, /etc/zsh/zshenv, login shell.
+  shell     minimal + CLI packages, ~/.config symlinks, fonts, oh-my-posh,
+            uv, rclone, speedtest, volta.
+  full      shell + neovim, tmux/TPM, git config, and the full package
+            manifest.
+
+PACKAGE POLICY
+  apt is used for system packages only. Anything Zinit installs from .zshrc
+  is skipped here and reported as "provided by Zinit", so the two managers
+  never fight over the same binary:
+
+    bat  chroma  delta  direnv  dust  eza  fastfetch  fd  fzf  gdu  gh
+    git-sizer  glow  grex  httpstat  hyperfine  jq  procs  rg  tldr  vivid
+
+  A few names are translated before apt sees them:
+
+    libtmux  -> python3-libtmux     gnupg2  -> gnupg
+    dnsutils -> bind9-dnsutils
+
+EXAMPLES
+  ./install.sh --dry-run                  inspect the plan first
+  ./install.sh --dry-run -p full -v       plan with per-package detail
+  ./install.sh -p shell -y                unattended shell profile
+  ./install.sh --skip-packages -p full    relink configs, install nothing
+
+ENVIRONMENT
+  DOTFILES   repo location                        [default: $HOME/.dotfiles]
+  NO_COLOR   set to any value to disable ANSI colour
+
+EXIT STATUS
+  0   success, or a clean dry-run
+  1   aborted, or one or more steps failed (see summary)
 EOF
 }
 
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
 while (( $# )); do
   case "$1" in
     -p|--profile)    PROFILE="${2:-}"; shift 2 ;;
     -y|--yes)        ASSUME_YES=1; shift ;;
-    -n|--dry-run)    DRY_RUN=1; shift ;;
+    -n|--dry-run)    DRY_RUN=1; VERBOSE=1; shift ;;
+    -v|--verbose)    VERBOSE=1; shift ;;
+    -q|--quiet)      QUIET=1; shift ;;
     --skip-packages) SKIP_PKGS=1; shift ;;
     -h|--help)       usage; exit 0 ;;
+    --)              shift; break ;;
     *) die "Unknown option: $1 (try --help)" ;;
   esac
 done
@@ -212,55 +300,204 @@ clone_repo() {
 }
 
 # ---------------------------------------------------------------------------
+# Package manifests
+# ---------------------------------------------------------------------------
+declare -A PKG_ALIAS=(
+  [libtmux]="python3-libtmux"  # not a Debian package name
+  [gnupg2]="gnupg"             # transitional alias on Debian
+  [dnsutils]="bind9-dnsutils"  # dnsutils has no candidate in trixie
+)
+
+# ---------------------------------------------------------------------------
+# Zinit ownership
+#
+# .zshrc installs these from GitHub releases through Zinit. They must never be
+# installed through apt as well: two copies of the same binary make PATH
+# resolution a coin flip and let the versions drift. Key = name as it appears
+# in the package lists below; value = binary Zinit actually provides.
+# ---------------------------------------------------------------------------
+declare -A ZINIT_PROVIDES=(
+  [bat]=bat            [chroma]=chroma      [delta]=delta
+  [direnv]=direnv      [dust]=dust          [eza]=eza
+  [fastfetch]=fastfetch [fd]=fd             [fd-find]=fd
+  [fzf]=fzf            [gdu]=gdu            [gh]=gh
+  [git-sizer]=git-sizer [glow]=glow         [grex]=grex
+  [httpstat]=httpstat  [hyperfine]=hyperfine [jq]=jq
+  [procs]=procs        [rg]=rg              [ripgrep]=rg
+  [tealdeer]=tldr      [tldr]=tldr          [vivid]=vivid
+)
+
+is_zinit_pkg() { [[ -n "${ZINIT_PROVIDES[$1]:-}" ]]; }
+zinit_owner()  { printf '%s' "${ZINIT_PROVIDES[$1]:-$1}"; }
+
+# Distinct binaries Zinit owns, sorted. Reporting only.
+zinit_binaries() {
+  local -A seen=()
+  local k
+  for k in "${!ZINIT_PROVIDES[@]}"; do seen["${ZINIT_PROVIDES[$k]}"]=1; done
+  printf '%s\n' "${!seen[@]}" | sort | tr '\n' ' '
+}
+
+# The curated full-profile list. Names that Zinit owns are deliberately absent
+# from here — listing them would be a second source of truth that drifts.
+readonly FULL_PACKAGES=(
+  # core shell / system
+  zsh zsh-static git curl wget ca-certificates man-db aptitude inxi hwloc
+  dbus-user-session daemonize shellcheck debian-goodies dos2unix patch
+  autoconf build-essential pkg-config cmake subversion
+  # crypto / secrets
+  gnupg2 dirmngr apt-transport-https pass pass-otp pass-extension-copyq
+  # editors / CLI
+  neovim tmux grc tio unzip htop aria2 calc lua5.4 luarocks
+  # media / networking
+  ffmpeg dnsutils whois
+  # python
+  python3-full python3-pip python3-enchant libtmux
+  # desktop / fonts / amusement
+  fontconfig fonts-powerline x11-apps sddm snapd
+  copyq cowsay fortunes fortune-mod
+)
+
+# Packages the earlier profiles need (kept separate so `minimal` stays small).
+readonly SHELL_PACKAGES=(
+  less pass gnupg fonts-terminus fonts-powerline
+  pkg-config make perl
+  build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev
+  libsqlite3-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
+)
+
+readonly FULL_EXTRA_PACKAGES=(xsel tree ncdu zip fontconfig)
+
+resolve_pkg() { printf '%s\n' "${PKG_ALIAS[$1]:-$1}"; }
+pkg_installed() { dpkg -s "$(resolve_pkg "$1")" >/dev/null 2>&1; }
+
+# ---------------------------------------------------------------------------
 # Step 2 — OS packages
 # ---------------------------------------------------------------------------
 pkg_install() {
   # pkg_install "label" pkg1 pkg2 ...
+  # Classifies every name, then installs only the apt-installable ones.
   local label="$1"; shift
-  if (( SKIP_PKGS )); then note "skipping packages: $label (--skip-packages)"; return 0; fi
 
-  local missing=() p
+  if (( SKIP_PKGS )); then
+    note "skipped: $label (--skip-packages)"
+    return 0
+  fi
+
+  info "$label"
+
+  local p real total=0 present=0
+  local -a missing=() unavailable=() zinit_owned=()
+
   for p in "$@"; do
-    dpkg -s "$p" >/dev/null 2>&1 || missing+=("$p")
-  done
-  if (( ${#missing[@]} == 0 )); then ok "$label already installed"; return 0; fi
+    total=$(( total + 1 ))
 
-  info "Installing $label: ${missing[*]}"
-  run sudo apt-get update -qq || warn "apt-get update had issues"
+    # Zinit owns it: never hand it to apt.
+    if is_zinit_pkg "$p"; then
+      zinit_owned+=("$p")
+      verb "⊘ $p — provided by Zinit ($(zinit_owner "$p"))"
+      continue
+    fi
+
+    real="$(resolve_pkg "$p")"
+
+    if dpkg -s "$real" >/dev/null 2>&1; then
+      present=$(( present + 1 ))
+      verb "✔ $p — already installed"
+      continue
+    fi
+
+    if ! apt-cache show "$real" >/dev/null 2>&1; then
+      unavailable+=("$p")
+      continue
+    fi
+
+    # De-duplicate: lists repeat names across sections.
+    case " ${missing[*]} " in
+      *" $real "*) ;;
+      *) missing+=("$real") ;;
+    esac
+  done
+
+  for p in "${unavailable[@]}"; do
+    warn "not in any APT repo, skipped: $p"
+    UNAVAILABLE+=("$p")
+  done
+
+  local zsuffix=""
+  if (( ${#zinit_owned[@]} )); then
+    zsuffix=", ${#zinit_owned[@]} via Zinit"
+  fi
+
+  if (( ${#missing[@]} == 0 )); then
+    ok "$label: $present present$zsuffix, nothing to install"
+    return 0
+  fi
+
+  step "installing ${#missing[@]}: ${missing[*]}"
+  ensure_apt_index
   if ! run sudo apt-get install -y -qq "${missing[@]}"; then
-    err "apt failed for: ${missing[*]}"
-    FAILED+=("apt:$label")
+    # Isolate the offender instead of failing the whole batch.
+    warn "batch install failed; retrying individually"
+    local one
+    for one in "${missing[@]}"; do
+      if ! run sudo apt-get install -y -qq "$one"; then
+        err "could not install: $one"
+        FAILED+=("apt:$one")
+      fi
+    done
+  fi
+  return 0
+}
+
+ensure_apt_index() {
+  # Refresh the package index at most once per run.
+  if (( APT_UPDATED )); then return 0; fi
+  APT_UPDATED=1
+  run sudo apt-get update -qq || warn "apt-get update had issues"
+}
+
+package_summary() {
+  # Report apt-managed full-profile packages only; Zinit ones are not ours.
+  local p real total=0 have=0 zinit=0
+  for p in "${FULL_PACKAGES[@]}"; do
+    if is_zinit_pkg "$p"; then zinit=$(( zinit + 1 )); continue; fi
+    total=$(( total + 1 ))
+    real="$(resolve_pkg "$p")"
+    if dpkg -s "$real" >/dev/null 2>&1; then
+      have=$(( have + 1 ))
+    elif apt-cache show "$real" >/dev/null 2>&1; then
+      MISSING_AFTER+=("$p -> $real")
+    else
+      UNAVAILABLE+=("$p")
+    fi
+  done
+  info "Package check: $have/$total apt packages present (Zinit-owned names excluded)"
+  verb "Zinit owns (never apt): $(zinit_binaries)"
+  if (( ${#MISSING_AFTER[@]} )); then
+    warn "still missing: ${MISSING_AFTER[*]}"
   fi
   return 0
 }
 
 package_steps() {
-  info "System packages"
-
   if (( NEED_LOCALE )); then
+    info "Locale"
     pkg_install "locales" locales
     run sudo sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true
     run sudo locale-gen || warn "locale-gen failed"
   fi
 
-  pkg_install "core shell tools" \
-    zsh git curl wget ca-certificates unzip \
-    bat ripgrep fd-find fzf jq less \
-    pkg-config make perl
+  pkg_install "Core shell tools" \
+    zsh git curl wget ca-certificates unzip pkg-config make perl
 
   if (( __PROFILE_RANK >= 2 )); then
-    pkg_install "shell extras" \
-      eza procs htop fastfetch tldr rclone pass gnupg fonts-terminus fonts-powerline
-    pkg_install "build deps" \
-      build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
-      libsqlite3-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
+    pkg_install "Shell extras" "${SHELL_PACKAGES[@]}"
   fi
 
   if (( __PROFILE_RANK >= 3 )); then
-    pkg_install "editors"    vim neovim
-    pkg_install "tmux"       tmux xsel grc
-    pkg_install "cli extras" httpstat tree ncdu zip
-    pkg_install "fonts"      fontconfig
+    pkg_install "Full-profile extras" "${FULL_EXTRA_PACKAGES[@]}"
+    pkg_install "Full-profile manifest" "${FULL_PACKAGES[@]}"
   fi
 }
 
@@ -278,7 +515,7 @@ backup() {
   fi
   run mkdir -p "$(dirname "$dest")"
   run mv "$target" "$dest"
-  note "backed up $target -> $dest"
+  (( ! DRY_RUN )) && note "backed up $target -> $dest"
 }
 
 # ---------------------------------------------------------------------------
@@ -288,20 +525,33 @@ link() {
   local src="$1" dest="$2"
   [[ -e "$src" ]] || { warn "source missing, skipped: $src"; SKIPPED+=("$src"); return 0; }
 
+  # Guard against linking a path onto itself. readlink -f is empty for a broken
+  # link, so never compare two empty strings as "equal".
+  local realsrc realdest
+  realsrc="$(readlink -f "$src" 2>/dev/null)" || realsrc=""
+  realdest="$(readlink -f "$dest" 2>/dev/null)" || realdest=""
+
   if [[ -L "$dest" ]]; then
-    if [[ "$(readlink -f "$dest" 2>/dev/null)" == "$(readlink -f "$src")" ]]; then
+    if [[ -n "$realsrc" && "$realdest" == "$realsrc" ]]; then
       ok "already linked: $dest"; return 0
     fi
-    note "replacing stale link $dest"
+    note "replacing stale/broken link $dest"
     run rm -f "$dest"
   elif [[ -e "$dest" ]]; then
+    # A real directory that is already the source resolves elsewhere; if it IS
+    # the source, there is nothing to do.
+    if [[ -n "$realsrc" && "$realsrc" == "$realdest" ]]; then
+      note "is the source directory: $dest"; return 0
+    fi
     backup "$dest"
   fi
 
   run mkdir -p "$(dirname "$dest")"
   if run ln -sfn "$src" "$dest"; then
-    ok "linked $dest -> $src"
-    LINKED+=("$dest")
+    if (( ! DRY_RUN )); then
+      ok "linked $dest -> $src"
+      LINKED+=("$dest")
+    fi
   else
     err "failed to link $dest"
     FAILED+=("link:$dest")
@@ -312,7 +562,15 @@ link_dir() {
   local src="$1" dest="$2" entry name
   [[ -d "$src" ]] || { warn "source dir missing, skipped: $src"; return 0; }
   run mkdir -p "$dest"
-  for entry in "$src"/* "$src"/.[!.]*; do
+
+  # If DEST already is a symlink into SRC (e.g. ~/.config/fastfetch ->
+  # ~/.dotfiles/.config/fastfetch), iterating "$src"/* would walk DEST's own
+  # contents. Use the real source dir and skip anything that resolves into
+  # DEST.
+  local realsrc
+  realsrc="$(readlink -f "$src" 2>/dev/null || printf '%s' "$src")"
+
+  for entry in "$realsrc"/* "$realsrc"/.[!.]*; do
     [[ -e "$entry" || -L "$entry" ]] || continue
     name="$(basename "$entry")"
     case "$name" in
@@ -346,10 +604,12 @@ $MARKER_END"
   [[ -e "$target" || -L "$target" ]] && backup "$target"
 
   if (( DRY_RUN )); then
-    note "[dry-run] write ZDOTDIR block to $target"
-  else
-    printf '%s\n' "$block" > "$target"
+    PLAN_ROWS+=("$PHASE|write $target")
+    (( ! QUIET )) && printf '  %s→ write %s%s\n' "$C_CYAN" "$target" "$C_RESET"
+    return 0
   fi
+
+  printf '%s\n' "$block" > "$target"
   ok "wrote $target"
   LINKED+=("$target")
 }
@@ -385,15 +645,14 @@ install_etc_zshenv() {
     run sudo cp "$target" "$target.bak.$(date +%Y%m%d%H%M%S)"
   fi
 
-  if (( DRY_RUN )); then
-    note "[dry-run] write $target"
+  local snippet
+  snippet='printf "%s\n%s\n" '\''export ZDOTDIR="${HOME}/.dotfiles/zsh"'\'' '\''export DOTFILES="${HOME}/.dotfiles"'\'' | sudo tee /etc/zsh/zshenv >/dev/null'
+  if run_sh "$snippet"; then
+    (( ! DRY_RUN )) && ok "wrote $target"
   else
-    printf '%s\n%s\n' \
-      'export ZDOTDIR="${HOME}/.dotfiles/zsh"' \
-      'export DOTFILES="${HOME}/.dotfiles"' \
-      | sudo tee "$target" >/dev/null
+    err "failed to write $target"
+    FAILED+=("etc-zshenv")
   fi
-  ok "wrote $target"
 }
 
 install_chsh() {
@@ -408,14 +667,96 @@ install_chsh() {
   fi
 
   info "Setting login shell to $shell_path"
-  if (( DRY_RUN )); then
-    note "[dry-run] sudo chsh -s $shell_path $(id -un)"
-  elif sudo chsh -s "$shell_path" "$(id -un)"; then
-    ok "login shell set (takes effect on next login)"
+  if run sudo chsh -s "$shell_path" "$(id -un)"; then
+    (( ! DRY_RUN )) && ok "login shell set (takes effect on next login)"
   else
     warn "chsh failed; run manually"
     MANUAL+=("chsh -s $shell_path")
   fi
+}
+
+# ---------------------------------------------------------------------------
+# Step 6 — Standalone tools and system configuration
+# ---------------------------------------------------------------------------
+install_passwordless_sudo() {
+  info "Passwordless sudo (/etc/sudoers.d)"
+  local user target
+  user="$(id -un)"
+  target="/etc/sudoers.d/$user"
+
+  if ! have sudo; then
+    warn "sudo not available — skipping passwordless sudo"
+    return 0
+  fi
+
+  if sudo test -f "$target" 2>/dev/null && sudo grep -q "NOPASSWD" "$target" 2>/dev/null; then
+    ok "passwordless sudo already configured ($target)"
+    return 0
+  fi
+
+  if confirm "configure passwordless sudo for $user?" y; then
+    if run_sh "echo \"$user ALL=(ALL) NOPASSWD:ALL\" | sudo tee \"$target\" >/dev/null && sudo chmod 0440 \"$target\""; then
+      if (( ! DRY_RUN )); then
+        if sudo visudo -cf "$target" >/dev/null 2>&1; then
+          ok "passwordless sudo configured ($target)"
+        else
+          err "sudoers syntax check failed on $target — removing file for safety"
+          sudo rm -f "$target"
+          FAILED+=("passwordless-sudo")
+          return 1
+        fi
+      fi
+    else
+      err "failed to configure passwordless sudo"
+      FAILED+=("passwordless-sudo")
+    fi
+  fi
+}
+
+install_standalone_tool() {
+  local label="$1" bin="$2" check_path="$3" prompt="$4" cmd="$5"
+  info "$label"
+  if have "$bin" || [[ -n "$check_path" && -x "$check_path" ]]; then
+    ok "$bin already installed"
+    return 0
+  fi
+  if (( SKIP_PKGS )); then
+    note "skipped: $bin (--skip-packages)"
+    return 0
+  fi
+  if confirm "$prompt" y; then
+    run_sh "$cmd" || { err "$bin install failed"; FAILED+=("$bin"); }
+  fi
+}
+
+install_oh_my_posh() {
+  install_standalone_tool "oh-my-posh" "oh-my-posh" "$HOME/.local/bin/oh-my-posh" \
+    "install oh-my-posh to ~/.local/bin?" \
+    "curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d '$HOME/.local/bin'"
+}
+
+install_uv() {
+  install_standalone_tool "python uv" "uv" "$HOME/.local/bin/uv" \
+    "install uv via astral.sh?" \
+    "curl -LsSf https://astral.sh/uv/install.sh | sh"
+}
+
+install_rclone() {
+  install_standalone_tool "rclone" "rclone" "/usr/bin/rclone" \
+    "install rclone via rclone.org?" \
+    "curl -fsSL https://rclone.org/install.sh | sudo bash"
+}
+
+install_speedtest() {
+  install_standalone_tool "speedtest (Ookla CLI)" "speedtest" "/usr/bin/speedtest" \
+    "install Ookla speedtest CLI?" \
+    "curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash && sudo apt-get install -y speedtest"
+}
+
+install_volta() {
+  install_standalone_tool "volta (JavaScript tool manager)" "volta" "${VOLTA_HOME:-$HOME/.volta}/bin/volta" \
+    "install volta via get.volta.sh?" \
+    "curl -fsSL https://get.volta.sh | bash"
 }
 
 # ---------------------------------------------------------------------------
@@ -431,6 +772,7 @@ common_shell_steps() {
 # ---------------------------------------------------------------------------
 profile_minimal() {
   info "Profile: minimal"
+  install_passwordless_sudo
   clone_repo
   common_shell_steps
   install_etc_zshenv
@@ -439,14 +781,15 @@ profile_minimal() {
 
 profile_shell() {
   info "Profile: shell"
+  install_passwordless_sudo
   package_steps
   common_shell_steps
   install_etc_zshenv
   install_chsh
 
   info "XDG configs"
-  # Credential-bearing dirs are skipped by link_dir itself; any stale links are
-  # removed before AND after linking so they can never point into the repo.
+  # Remove any stale credential links so they can never point into the repo;
+  # link_dir itself also skips sensitive directories.
   local p
   for p in rclone chezmoi copyq gh; do
     if [[ -L "$HOME/.config/$p" ]]; then
@@ -455,12 +798,6 @@ profile_shell() {
     fi
   done
   link_dir "$DOTFILES/.config" "$HOME/.config"
-  for p in rclone chezmoi copyq gh; do
-    if [[ -L "$HOME/.config/$p" ]]; then
-      warn "unlinked credential-bearing config: ~/.config/$p"
-      run rm -f "$HOME/.config/$p"
-    fi
-  done
 
   info "Home dotfiles"
   link "$DOTFILES/.dircolors"    "$HOME/.dircolors"
@@ -477,13 +814,11 @@ profile_shell() {
   info "fastfetch themes (greeting needs archey.jsonc)"
   link_dir "$DOTFILES/.config/fastfetch" "$HOME/.config/fastfetch"
 
-  info "oh-my-posh"
-  if have oh-my-posh; then
-    ok "already installed"
-  elif confirm "install oh-my-posh to ~/.local/bin?" y; then
-    run_sh "curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d '$HOME/.local/bin'" \
-      || { err "oh-my-posh install failed"; FAILED+=("oh-my-posh"); }
-  fi
+  install_oh_my_posh
+  install_uv
+  install_rclone
+  install_speedtest
+  install_volta
 
   info "Zinit"
   if [[ -f "$HOME/.local/share/zinit/zinit.git/zinit.zsh" ]]; then
@@ -500,22 +835,24 @@ profile_full() {
   # Runs after profile_shell in the same process: packages are already handled.
   info "Editing tools and extras"
 
-  info "Editors"
-  link "$DOTFILES/.vimrc"  "$HOME/.vimrc"
-  link "$DOTFILES/.gvimrc" "$HOME/.gvimrc"
+  info "Editors (neovim)"
+  # vim is intentionally not configured: EDITOR/VISUAL already point at nvim
+  # in zsh/.zshenv, and .vimrc/.vim are no longer shipped.
   link "$DOTFILES/.nanorc" "$HOME/.nanorc"
-  link_dir "$DOTFILES/.vim" "$HOME/.vim"
   link_dir "$DOTFILES/.config/nvim" "$HOME/.config/nvim"
 
-  if [[ -f "$HOME/.vim/autoload/plug.vim" ]]; then
-    ok "vim-plug already installed"
+  # vim-plug for Neovim lives under stdpath('data'), NOT ~/.vim — nvim would
+  # never load a plug.vim placed in ~/.vim/autoload.
+  local nvim_plug="$HOME/.local/share/nvim/site/autoload/plug.vim"
+  if [[ -f "$nvim_plug" ]]; then
+    ok "vim-plug for neovim already installed"
   else
-    info "vim-plug"
-    run mkdir -p "$HOME/.vim/autoload"
-    run_sh "curl -fLo '$HOME/.vim/autoload/plug.vim' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" \
+    info "vim-plug (neovim)"
+    run mkdir -p "$(dirname "$nvim_plug")"
+    run_sh "curl -fLo '$nvim_plug' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" \
       || { err "vim-plug download failed"; FAILED+=("vim-plug"); }
   fi
-  MANUAL+=("Run :PlugInstall inside vim once")
+  MANUAL+=("Open nvim once and run :PlugInstall (plugins.lua also auto-installs on first start)")
 
   info "tmux"
   link "$DOTFILES/.config/tmux/tmux.conf"       "$HOME/.tmux.conf"
@@ -591,21 +928,89 @@ verify() {
       (( bad )) || ok "zsh syntax check passed"
     fi
   fi
+
+  if (( __PROFILE_RANK >= 2 )); then
+    local tool
+    for tool in oh-my-posh uv rclone speedtest volta; do
+      if have "$tool"; then
+        ok "binary available: $tool"
+      else
+        warn "binary not on PATH: $tool"
+      fi
+    done
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Dry-run plan
+#
+# PLAN_ROWS holds "<phase>|<command>" for every mutation that was skipped.
+# Render it grouped by phase so --dry-run answers "what will this do?" at a
+# glance instead of leaving the reader to scroll back through the log.
+# ---------------------------------------------------------------------------
+print_plan() {
+  local -A counts=()
+  local -a order=()
+  local row phase_name total=0
+
+  for row in "${PLAN_ROWS[@]}"; do
+    phase_name="${row%%|*}"
+    if [[ -z "${counts[$phase_name]+x}" ]]; then
+      order+=("$phase_name")
+      counts[$phase_name]=0
+    fi
+    counts[$phase_name]=$(( counts[$phase_name] + 1 ))
+    total=$(( total + 1 ))
+  done
+
+  printf '\n%s\n' "${C_MAGENTA}${C_BOLD}════════════════ PLAN ════════════════${C_RESET}"
+
+  if (( total == 0 )); then
+    printf '  %sSystem already matches this profile — nothing to do.%s\n' "$C_DIM" "$C_RESET"
+  else
+    local ph
+    for ph in "${order[@]}"; do
+      printf '  %-46s %3d  %s\n' "$ph" "${counts[$ph]}" "action(s)"
+    done
+    printf '%s\n' "  ${C_DIM}──────────────────────────────────────${C_RESET}"
+    printf '  %s%d action(s) would run.%s\n' "$C_BOLD" "$total" "$C_RESET"
+  fi
+
+  printf '\n  %sNothing was changed.%s  Re-run without %s--dry-run%s to apply.\n' \
+    "$C_YELLOW" "$C_RESET" "$C_BOLD" "$C_RESET"
 }
 
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 summary() {
-  printf '\n%s\n' "${C_BOLD}${C_BLUE}──── Summary ────${C_RESET}"
-  printf '  links created : %d\n' "${#LINKED[@]}"
-  (( ${#SKIPPED[@]} )) && printf '  skipped       : %d (missing sources)\n' "${#SKIPPED[@]}"
-  (( ${#FAILED[@]} ))  && printf '  %sfailures      : %d%s\n' "$C_RED" "${#FAILED[@]}" "$C_RESET"
-  (( BACKUP_MADE ))    && printf '  backup        : %s\n' "$BACKUP_ROOT"
+  package_summary
+
+  if (( ${#UNAVAILABLE[@]} )); then
+    printf '\n%s\n' "${C_YELLOW}Not available in APT:${C_RESET}"
+    local u; for u in "${UNAVAILABLE[@]}"; do printf '  - %s\n' "$u"; done
+  fi
 
   if (( ${#MANUAL[@]} )); then
     printf '\n%s\n' "${C_BOLD}Manual follow-ups${C_RESET}"
     local m; for m in "${MANUAL[@]}"; do printf '  • %s\n' "$m"; done
+  fi
+
+  if (( DRY_RUN )); then
+    print_plan
+    return 0
+  fi
+
+  printf '\n%s\n' "${C_BLUE}${C_BOLD}──────── Summary ────────${C_RESET}"
+  printf '  links created : %d\n' "${#LINKED[@]}"
+  if (( ${#SKIPPED[@]} )); then
+    printf '  skipped       : %d (missing sources)\n' "${#SKIPPED[@]}"
+  fi
+  if (( ${#FAILED[@]} )); then
+    printf '  %sfailures      : %d%s\n' "$C_RED" "${#FAILED[@]}" "$C_RESET"
+  fi
+  if (( BACKUP_MADE )); then
+    printf '  backup        : %s\n' "$BACKUP_ROOT"
   fi
 
   if (( ${#FAILED[@]} )); then
@@ -615,7 +1020,6 @@ summary() {
   fi
 
   printf '\n%s\n' "${C_GREEN}${C_BOLD}Done.${C_RESET}"
-  (( DRY_RUN )) && printf '%s\n' "${C_YELLOW}Dry run — nothing was changed.${C_RESET}"
   printf 'Open a new terminal (or run: exec zsh -l) to load the config.\n'
 }
 
@@ -632,8 +1036,8 @@ choose_profile() {
 
   printf '\n%s\n' "${C_BOLD}Choose an install profile${C_RESET}"
   printf '  1) minimal  — shell entry points only\n'
-  printf '  2) shell    — + CLI tools, XDG configs, fonts, oh-my-posh  %s(recommended)%s\n' "$C_DIM" "$C_RESET"
-  printf '  3) full     — + vim/nvim, tmux, git, fonts\n'
+  printf '  2) shell    — + CLI tools, XDG configs, fonts, oh-my-posh, uv, rclone, speedtest, volta  %s(recommended)%s\n' "$C_DIM" "$C_RESET"
+  printf '  3) full     — + neovim, tmux, git, fonts, full package manifest\n'
   local reply
   read -r -p '  Profile [2]: ' reply || reply=""
   case "${reply:-2}" in
@@ -648,13 +1052,19 @@ choose_profile() {
 # Main
 # ---------------------------------------------------------------------------
 main() {
-  printf '%s\n' "${C_BOLD}dotfiles installer${C_RESET} ${C_DIM}(Debian/WSL2)${C_RESET}"
-  (( DRY_RUN )) && printf '%s\n' "${C_YELLOW}DRY RUN — no changes will be made${C_RESET}"
-  printf '  repo : %s\n' "$DOTFILES"
+  printf '%s\n' "${C_BOLD}dotfiles installer${C_RESET} ${C_DIM}· Debian / WSL2${C_RESET}"
+  printf '  %srepo    %s %s\n' "$C_DIM" "$C_RESET" "$DOTFILES"
 
   preflight
   choose_profile
-  printf '  profile : %s\n\n' "$PROFILE"
+
+  printf '  %sprofile %s %s\n' "$C_DIM" "$C_RESET" "$PROFILE"
+  if (( DRY_RUN )); then
+    printf '  %smode    %s %s\n' "$C_DIM" "$C_RESET" "${C_YELLOW}dry-run — nothing will change${C_RESET}"
+  else
+    printf '  %smode    %s %s\n' "$C_DIM" "$C_RESET" "apply"
+  fi
+  printf '\n'
 
   case "$PROFILE" in
     minimal) profile_minimal ;;

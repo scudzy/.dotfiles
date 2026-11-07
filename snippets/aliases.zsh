@@ -74,11 +74,11 @@ alias rmi='rm -i'
 alias _='sudo'
 alias c='clear'
 alias d='dirs -v | head -10'
-alias v='vim'
+alias v='nvim'
 alias h='history'
 
 # shortcuts
-alias vi='vim'
+alias vi='nvim'   # vim is not installed; everything goes through nvim
 alias nv='nvim'
 alias afind='ack -il'
 alias md='mkdir -p'

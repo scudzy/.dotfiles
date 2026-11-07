@@ -193,3 +193,129 @@ assume the encrypted config was downloadable.
 - `zsh/completions/_myfunc` hard-codes a Windows VS Code path.
 - `etc/wsl.conf` sets `[automount] root = /`, which is intentional but
   non-default; documented in the README.
+## 7. Full-profile package manifest
+
+The `full` profile installs a curated 56-package list, checked one by one:
+
+```sh
+./install.sh --profile full          # dry-run first: add --dry-run
+```
+
+Behaviour:
+
+- **Per-package check** via `dpkg -s`; only missing packages hit `apt-get`.
+- **Name aliases** for `libtmux` -> `python3-libtmux`, `gnupg2` -> `gnupg`,
+  `dnsutils` -> `bind9-dnsutils` (the last has no candidate in trixie).
+- **Isolated retry**: a failed batch is retried package-by-package so a single
+  bad name cannot abort the rest.
+- **Not-in-repo names** are reported separately instead of failing the run.
+- **Zinit-provided tools** (`httpstat`, `tldr`, `fd`, `bat`, `delta`, `gh`,
+  `jq`, `fzf`, `eza`, `rg`, `fastfetch`, `dust`) are skipped for apt because
+  `.zshrc` installs them; they are listed as such, not as errors.
+
+### Link bug found during live testing
+
+The first real (non-dry) install exposed a serious bug in `link_dir`. When
+linking `~/.config/fastfetch`, the destination became a symlink into the
+source, and the next `link_dir` call iterated `"$src"/*` — which, through the
+destination symlink, expanded to the destination's own entries, so each file
+was linked to itself. Result: `Too many levels of symbolic links`.
+
+Fix: `link()` now resolves both sides with `readlink -f` and refuses a link
+whose destination resolves to the source; `link_dir` iterates the resolved
+source path and skips entries that point back into the destination. Empty
+`readlink -f` results (broken links) are never compared as equal.
+
+The repo itself was restored afterwards (`git checkout`) and contains only its
+4 legitimate plugin symlinks.
+## 8. vim removed; neovim is the only editor
+
+vim was dropped from the setup entirely.
+
+**What changed**
+
+| Before | After |
+|---|---|
+| `vim`, `vim-gtk3` in the package manifest | `neovim` only (manifest now 55 packages) |
+| `.vimrc`, `.gvimrc` symlinked to `$HOME` | deleted from the repo |
+| `.vim/` (colors, after/syntax, spell, autoload/plug.vim) tracked | deleted from the repo |
+| vim-plug fetched to `~/.vim/autoload/plug.vim` | fetched to `~/.local/share/nvim/site/autoload/plug.vim` |
+| `alias v='vim'`, `alias vi='vim'` | both resolve to `nvim` |
+| manual step "run `:PlugInstall` in vim" | "open `nvim` and run `:PlugInstall`" |
+
+`EDITOR`/`VISUAL` already pointed at `nvim` in `zsh/.zshenv`, so nothing else
+had to move.
+
+**The important detail:** nvim reads plugins from `stdpath('data')`, i.e.
+`~/.local/share/nvim/site/autoload/plug.vim`. Installing vim-plug into
+`~/.vim/autoload` (as the README used to instruct) never worked for nvim —
+it only ever served vim. The nvim config's `lua/plugins.lua` already
+self-installs to the correct path on first start; the installer now matches it.
+
+**Local cleanup performed:** the old `~/.vim/plugged` tree (78 plugins,
+121 MB) was moved to `~/.dotfiles-backup/<timestamp>/vim-removal/plugged`,
+the dangling `~/.vim/{after,autoload,colors,spell}` symlinks were removed, and
+`~/.vim` itself was deleted. `~/.local/share/nvim/plugged` (64 plugins) was
+left untouched.
+
+**Verified:** `nvim --headless` starts with no errors against the linked
+config; the installer reports 55/55 packages and 0 links to create.
+## 9. CLI: `--help`, `--dry-run`, and Zinit ownership
+
+### Help
+
+`-h/--help` prints a structured reference: modes, options, profiles, package
+policy, examples, environment variables, exit status. No arguments are needed
+to discover behaviour.
+
+### Dry run as a plan, not a log
+
+`--dry-run` used to be a scatter of `[dry-run]` lines that only made sense if
+you read the whole scrollback. It now journals every mutation into
+`PLAN_ROWS` as `<phase>|<command>` and renders a grouped plan at the end:
+
+```
+════════════════ PLAN ════════════════
+  Shell extras                                     2  action(s)
+  XDG configs                                      1  action(s)
+  Fonts                                            3  action(s)
+  ──────────────────────────────────────
+  12 action(s) would run.
+  Nothing was changed.  Re-run without --dry-run to apply.
+```
+
+Mechanics:
+
+- `run()` / `run_sh()` are the only ways to mutate. In dry-run they append to
+  the journal and print `→ <command>`; otherwise they execute (and print
+  `$ <command>` under `--verbose`).
+- `info()` doubles as the phase marker, so groups match the real step order.
+- `step()` prints a sub-line **without** starting a new phase — used for
+  "installing N: …" so a dry run never says "Installing" when it installs
+  nothing.
+- `verb()` gates per-item detail behind `--verbose`, which `--dry-run` implies:
+  `✔ pkg — already installed`, `⊘ pkg — provided by Zinit`.
+
+`--quiet` suppresses progress but keeps warnings, errors and the summary, so
+`--dry-run -q` is a compact plan-only view.
+
+### Zinit owns its packages — enforced, not just documented
+
+The previous version listed Zinit tooling in `ZINIT_PACKAGES` but only consulted
+it when apt had *no candidate*. So `bat`, `fzf`, `jq`, `eza`, `gdu`, `direnv`
+were still installed by apt even though `.zshrc` also installs them, leaving two
+copies racing on `PATH`.
+
+Fix: `ZINIT_PROVIDES` (name → binary) is checked at the top of `pkg_install`,
+before `dpkg -s` and before `apt-cache`. Anything it names is skipped
+unconditionally and reported as `provided by Zinit`. The duplicated names were
+also removed from `SHELL_PACKAGES` / `FULL_PACKAGES` so the manifests have a
+single source of truth.
+
+Verified by unit test: `pkg_install "mixed" bat fzf gdu direnv jq libncursesw5-dev`
+journals only `sudo apt-get install -y -qq libncursesw5-dev`.
+
+**Known trade-off:** `rg` is Zinit-owned, but `bash/.bashrc` uses
+`rg --files` as `FZF_DEFAULT_COMMAND`. Bash has no Zinit on `PATH`, so
+fzf-in-bash needs `rg` to already exist. Documented in the README rather than
+silently working around, since the alternative is re-introducing an apt copy.
