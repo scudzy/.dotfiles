@@ -285,7 +285,7 @@ else
 fi
 
 # Prompt: Oh-My-Posh
-eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/pure.omp.json)"
+eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/emodipt-extend.omp.json)"
 
 # translate-shell completion
 compdef _gnu_generic trans
