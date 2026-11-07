@@ -240,7 +240,13 @@ preflight() {
     warn "Not running in WSL — /etc/wsl.conf steps will be skipped"
   fi
 
-  have git || die "git is required first (sudo apt install git)."
+  if ! have git; then
+    if confirm "git is required. Install git via apt now?" y; then
+      run sudo apt-get update -qq && run sudo apt-get install -y -qq git || die "Failed to install git."
+    else
+      die "git is required first (sudo apt install git)."
+    fi
+  fi
 
   if [[ -d "$DOTFILES/.git" ]]; then
     ok "Repo found at $DOTFILES"
@@ -782,6 +788,7 @@ profile_minimal() {
 profile_shell() {
   info "Profile: shell"
   install_passwordless_sudo
+  clone_repo
   package_steps
   common_shell_steps
   install_etc_zshenv

@@ -70,7 +70,15 @@ Zsh reads `~/.dotfiles/zsh/.zshrc` **directly in place**.
 
 ## 🚀 Quick Start
 
-Clone the repository and run the installer:
+### ⚡ One-Line Automated Install
+Bootstrap a fresh Debian/WSL environment unattended with a single command:
+
+```bash
+curl -fsSL 'https://gitlab.com/scudzy/dotfiles-wsl/-/raw/main/install.sh' | bash -s -- --yes --profile full
+```
+
+### 🛠️ Interactive / Manual Install
+Clone the repository manually to inspect options or run a dry-run first:
 
 ```bash
 git clone git@gitlab.com:scudzy/dotfiles-wsl.git ~/.dotfiles

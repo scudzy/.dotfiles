@@ -134,9 +134,19 @@ Stale symlinks matching these names are also pruned prior to directory linking.
 
 ## 6. 🎯 Profile Hierarchy & Matrix
 
-The installer organizes installation into three progressive profiles:
+The installer supports both **piped remote bootstrapping** (for fresh, unattended machine setup) and **local interactive execution**:
 
+```bash
+# ⚡ Remote unattended bootstrap (clones repo, sets up passwordless sudo, provisions full profile)
+curl -fsSL 'https://gitlab.com/scudzy/dotfiles-wsl/-/raw/main/install.sh' | bash -s -- --yes --profile full
+
+# 🛠️ Local interactive execution
+./install.sh --dry-run   # Preview plan without modifications
+./install.sh             # Interactive profile picker
 ```
+
+### Profile Progression
+```text
 [minimal] ────► [shell] ────► [full]
 ```
 
