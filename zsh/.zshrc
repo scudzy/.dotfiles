@@ -320,3 +320,5 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 # pnpm end
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
