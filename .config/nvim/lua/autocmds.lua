@@ -50,13 +50,13 @@ autocmd("FileType", {
 autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
     group = cursor_line_group,
     pattern = "*",
-    command = "setlocal cursorline",
+    command = "setlocal nocursorline",
 })
 
 autocmd("WinLeave", {
     group = cursor_line_group,
     pattern = "*",
-    command = "setlocal nocourse_line",
+    command = "setlocal nocursorline",
 })
 
 -- Directory Hijacking and File Manager Hooks

@@ -95,5 +95,11 @@ Plug 'wgwoods/vim-systemd-syntax'
 Plug 'zdharma-continuum/zinit-vim-syntax'
 Plug 'groenewege/vim-less'
 
+" nvim neo-tree
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-tree/nvim-web-devicons' " optional, for file icons
+Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-neo-tree/neo-tree.nvim'
+
 call plug#end()
 ]])
