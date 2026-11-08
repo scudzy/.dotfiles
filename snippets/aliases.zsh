@@ -80,6 +80,7 @@ alias h='history'
 # shortcuts
 alias vi='nvim'   # vim is not installed; everything goes through nvim
 alias nv='nvim'
+alias nvide='neovide --wsl --neovim-bin /home/scudzy/.local/share/zinit/plugins/neovim---neovim/nvim-linux-x86_64/bin/nvim'
 alias afind='ack -il'
 alias md='mkdir -p'
 alias rd=rmdir
@@ -340,8 +341,7 @@ alias gppghglab="git push origin main -v && git push gitlab main -v"
 alias gppglabgh="git push origin main -v && git push github main -v"
 
 # st4
-alias subl='/c/Program\ Files/Sublime\ Text/subl.exe &'
-alias zshrc='subl $(wslpath -w ~/.zshrc)'
-alias zshenv='subl $(wslpath -w ~/.zshenv)'
-alias zprofile='subl $(wslpath -w ~/.zprofile)'
-alias aliases='subl $(wslpath -w ~/.dotfiles/snippets/aliases.zsh)'
+alias zshrc='neovide ~/.dotfiles/zsh/zshrc &'
+alias zshenv='neovide ~/.dotfiles/zsh/zshenv &'
+alias zprofile='neovide ~/.dotfiles/zsh/zprofile &'
+alias aliases='neovide ~/.dotfiles/snippets/aliases.zsh &'
