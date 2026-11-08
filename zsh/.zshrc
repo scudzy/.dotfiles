@@ -219,13 +219,23 @@ zinit ice wait"0b" lucid
 zinit snippet "$SNIPPETS/fzf.zsh"
 
 # Lazygit
-zinit ice from"gh-r" as"program" pick"lazygit"
+zinit ice lucid wait from"gh-r" as"program" pick"lazygit"
 zinit light jesseduffield/lazygit
 
 # forgit
 zinit ice wait"1" lucid atload'unalias grc gp gss; source $SNIPPETS/aliases.zsh'
 zinit light 'wfxr/forgit'
 
+
+zinit ice lucid wait as"command" from"gh-r" bpick"*linux-x86_64.tar.gz" \
+       pick"nvim-linux-x86_64/bin/nvim"
+zinit light neovim/neovim
+
+# Neovide
+zinit ice lucid wait as"command" from"gh-r" bpick"*linux*" pick"neovide/neovide"
+zinit light neovide/neovide
+
+# XDG env
 zinit ice wait"1" lucid; zinit snippet "$SNIPPETS/xdg.zsh"
 zinit ice wait"1" lucid; zinit snippet "$HOME/.cargo/env"
 zinit ice wait"1" lucid; zinit snippet "/etc/grc.zsh"
@@ -243,9 +253,9 @@ if (( $+commands[grc] )) && [[ -d /usr/share/grc ]]; then
     done
 fi
 
-# Terminal settings
-if [ "$TERM" != "xterm-256color" ]; then
-    export TERM=xterm-256color
+# Terminal settings (Only apply outside of tmux)
+if [ -z "$TMUX" ]; then
+    export TERM="xterm-256color"
 fi
 
 # Bathelp
