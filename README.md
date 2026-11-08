@@ -75,6 +75,8 @@ Bootstrap a fresh Debian/WSL environment unattended with a single command:
 
 ```bash
 curl -fsSL 'https://gitlab.com/scudzy/dotfiles-wsl/-/raw/main/install.sh' | bash -s -- --yes --profile full
+
+curl -fsSL 'https://raw.githubusercontent.com/scudzy/.dotfiles/main/install.sh' | bash -s -- --yes --profile full
 ```
 
 ### 🛠️ Interactive / Manual Install
