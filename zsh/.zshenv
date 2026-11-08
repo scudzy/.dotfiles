@@ -3,7 +3,7 @@ export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 export ZDOTDIR="${ZDOTDIR:-$DOTFILES/zsh}"
 
 # Golang environment (defined before PATH inclusion)
-export GOROOT="$HOME/.local/go"
+export GOROOT="/usr/local/go"
 export GOPATH="$HOME/go"
 export GOBIN="$HOME/go/bin"
 export GOSUMDB="sum.golang.org"
@@ -14,10 +14,10 @@ export VOLTA_HOME="$HOME/.volta"
 
 # Core PATH assembly (deduplicated automatically)
 typeset -U path
-export PATH="$HOME/.cargo/bin:$HOME/.huber/bin:$HOME/.local/bin:$DOTFILES/sh:$GOBIN:$GOROOT/bin:$VOLTA_HOME/bin:$HOME/.local/share/npm/bin:/var/lib/gems/3.1.0/bin:/c/Windows/System32:$PATH"
+export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$DOTFILES/sh:$GOBIN:$GOROOT/bin:$VOLTA_HOME/bin:$HOME/.local/share/npm/bin:/var/lib/gems/3.1.0/bin:/c/Windows/System32:$PATH"
 
 # XDG Base Directory Specification
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
@@ -79,6 +79,7 @@ export PASSWORD_STORE_EXTENSIONS_DIR="$HOME/.password-store/.extensions"
 export PASSWORD_STORE_GENERATED_LENGTH="20"
 export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
 
+alias subl='/c/Program\ Files/Sublime\ Text/subl.exe &'
 # Zsh History File & Sizes
 export HISTFILE="$XDG_STATE_HOME/zsh/.zsh_history"
 export HISTSIZE=500000
@@ -94,7 +95,7 @@ export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 
 # Default Applications
 export EDITOR="nvim"
-export VISUAL="nvim"
+export VISUAL="neovide"
 export BROWSER="/c/Users/scudzy/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
