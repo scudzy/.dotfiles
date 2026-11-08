@@ -120,3 +120,7 @@ export PATH="$GEM_HOME/bin:$PATH"
 export NVM_RC_VERSION="v25.2.1"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 export ZSH_COLORIZE_TOOL="chroma"
+
+# Forgit
+export FORGIT_DIFF_FZF_OPTS="--preview-window=right:60%:wrap --ansi"
+export FORGIT_DIFF_PAGER="delta --syntax-theme=Dracula"

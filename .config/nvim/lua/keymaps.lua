@@ -81,7 +81,7 @@ map("i", "<CR>", [[pumvisible() ? "<C-y>" : "<CR>"]], expr_opts)
 map("i", "<Left>", [[pumvisible() ? "<C-e>" : "<Left>"]], expr_opts)
 
 -- Neo-tree File Browser Toggle (Replaced Fern)
-map({ "n", "v" }, "<Leader>f", ":Neotree toggle reveal<CR>", opts)
+vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle file explorer" })
 
 -- Fast Tab Switching and Management Keymaps
 local map = vim.keymap.set
