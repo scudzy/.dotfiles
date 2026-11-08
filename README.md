@@ -152,11 +152,11 @@ This prevents version drift and dual-binary `PATH` conflicts.
 ### 2. Standalone Modern Toolchain
 Fast standalone CLI tools are checked before installation and provisioned cleanly:
 
-* 💅 **[Oh My Posh](https://ohmyposh.dev/)** — Installed to `~/.local/bin/oh-my-posh` without root dependencies.
-* 🐍 **[Astral uv](https://astral.sh/uv)** — Fast Python package manager installed via `astral.sh/uv/install.sh`.
-* ☁️ **[Rclone](https://rclone.org/)** — Latest upstream release installed via `rclone.org/install.sh`.
-* 📶 **[Ookla Speedtest](https://www.speedtest.net/apps/cli)** — Official Ookla repository setup via PackageCloud.
-* ⚡ **[Volta](https://volta.sh/)** — JavaScript runtime manager installed via `get.volta.sh`.
+* 💅    **[Oh My Posh](https://ohmyposh.dev/)** — Installed to `~/.local/bin/oh-my-posh` without root dependencies.
+* 🐍    **[Astral uv](https://astral.sh/uv)** — Fast Python package manager installed via `astral.sh/uv/install.sh`.
+* ☁️    **[Rclone](https://rclone.org/)** — Latest upstream release installed via `rclone.org/install.sh`.
+* 📶    **[Ookla Speedtest](https://www.speedtest.net/apps/cli)** — Official Ookla repository setup via PackageCloud.
+* ⚡     **[Volta](https://volta.sh/)** — JavaScript runtime manager installed via `get.volta.sh`.
 
 ### 3. Passwordless Sudo
 If not already active, the installer can write a dedicated drop-in file to `/etc/sudoers.d/$(id -un)` with `0440` permissions, validated with `sudo visudo -cf` before activating to guarantee safe syntax.
@@ -195,7 +195,7 @@ After running `install.sh`, complete these quick manual follow-ups:
 
 ## 👤 Author
 
-* **Scudzy** — [@scudzy](https://github.com/scudzy)
+* **scudzy** — [@scudzy](https://github.com/scudzy)
 
 ## 📄 License
 
