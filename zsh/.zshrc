@@ -218,6 +218,10 @@ zinit light Aloxaf/fzf-tab
 zinit ice wait"0b" lucid
 zinit snippet "$SNIPPETS/fzf.zsh"
 
+# Lazygit
+zinit ice from"gh-r" as"program" pick"lazygit"
+zinit light jesseduffield/lazygit
+
 # forgit
 zinit ice wait"1" lucid atload'unalias grc gp gss; source $SNIPPETS/aliases.zsh'
 zinit light 'wfxr/forgit'
