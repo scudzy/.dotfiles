@@ -28,7 +28,6 @@ opt.matchpairs:append("<:>")
 opt.mmp = 5000
 opt.modelines = 2
 opt.mouse = "a"
-opt.errorbells = false
 opt.visualbell = true
 opt.shiftround = false
 opt.spell = false
@@ -42,7 +41,7 @@ opt.shiftwidth = 4
 opt.showcmd = true
 opt.showmatch = true
 opt.shortmess:append("c")
-opt.showmode = false -- Turned off globally since you use Airline
+opt.showmode = false -- Turned off globally since you use Lualine
 opt.smartcase = true
 opt.softtabstop = 2
 opt.spelllang = { "en_us" }
@@ -51,7 +50,6 @@ opt.splitright = true
 opt.tabstop = 4
 opt.textwidth = 0
 opt.timeoutlen = 1000
-opt.ttimeoutlen = 0
 opt.undodir = "/tmp"
 opt.undofile = true
 opt.virtualedit = "block"
@@ -60,10 +58,8 @@ opt.wildmenu = true
 opt.wildmode = "full"
 opt.wrap = true
 
--- Truecolor support configuration
-if vim.fn.has("termguicolors") == 1 then
-    opt.termguicolors = true
-end
+-- Truecolor support configuration (Native in modern Neovim)
+opt.termguicolors = true
 
 -- Runtime overrides
 vim.cmd("runtime! macros/matchit.vim")

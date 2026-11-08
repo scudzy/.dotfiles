@@ -1,10 +1,9 @@
-local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
 
 -- Setup Group Namespaces
 local general_group = augroup("GeneralAutoCommands", { clear = true })
 local cursor_line_group = augroup("CursorLineToggle", { clear = true })
-local fern_group = augroup("FernIntegration", { clear = true })
 
 -- Structural Window Event Auto-resizing
 autocmd("VimResized", {
@@ -59,111 +58,57 @@ autocmd("WinLeave", {
     command = "setlocal nocursorline",
 })
 
--- Directory Hijacking and File Manager Hooks
-autocmd("BufEnter", {
-    group = fern_group,
-    pattern = "*",
-    nested = true,
-    callback = function()
-        local path = vim.fn.expand("%:p")
-        if vim.fn.isdirectory(path) == 0 then return end
-        vim.cmd("bwipeout %")
-        vim.cmd(string.format("Fern %s", vim.fn.fnameescape(path)))
-    end,
-})
-
-autocmd("FileType", {
-    group = fern_group,
-    pattern = "fern",
-    callback = function()
-        vim.cmd("call FernInit()")
-    end,
-})
-
-autocmd("FileType", {
-    group = fern_group,
-    pattern = { "fern", "nerdtree", "startify" },
-    callback = function()
-        vim.fn["glyph_palette#apply"]()
-    end,
-})
-
+-- Presentation Mode Trigger (.vpm files)
 autocmd({ "BufNewFile", "BufRead" }, {
     group = general_group,
     pattern = "*.vpm",
     callback = function()
-        vim.cmd("call SetVimPresentationMode()")
+        -- Map arrow keys for presentation navigation and launch Goyo focus mode
+        vim.keymap.set("n", "<Right>", ":n<CR>", { buffer = true })
+        vim.keymap.set("n", "<Left>", ":N<CR>", { buffer = true })
+        if vim.fn.exists("#goyo") == 0 then
+            vim.cmd("Goyo")
+        end
     end,
 })
 
-vim.cmd([[
-    " Legacy Quickfix View Toggle Routine
-    function! QuickFix_toggle()
-        for i in range(1, winnr('$'))
-            let bnum = winbufnr(i)
-            if getbufvar(bnum, '&buftype') == 'quickfix'
-                cclose
-                return
-            endif
-        endfor
-        copen
-    endfunction
+-- Helper Command: Legacy Quickfix View Toggle
+vim.api.nvim_create_user_command("QuickFixToggle", function()
+    for i = 1, vim.fn.winnr("$") do
+        local bnum = vim.fn.winbufnr(i)
+        if vim.fn.getbufvar(bnum, "&buftype") == "quickfix" then
+            vim.cmd("cclose")
+            return
+        end
+    end
+    vim.cmd("copen")
+end, {})
 
-    " Project Todo Compilation Pipeline
-    function! s:todo() abort
-        let entries = []
-        for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null', 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
-            let lines = split(system(cmd), '\n')
-            if v:shell_error != 0 | continue | endif
-            for line in lines
-                let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
-                call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
-            endfor
-            break
-        endfor
-        if !empty(entries)
-            call setqflist(entries)
-            copen
-        endif
-    endfunction
-
-    " Direct Engine Profiling Engine
-    function! s:profile(bang)
-        if a:bang
-            profile pause
-            noautocmd qall
-        else
-            profile start /tmp/profile.log
-            profile func *
-            profile file *
-        endif
-    endfunction
-
-    " Presentation Mode Interface Modification Function
-    function SetVimPresentationMode()
-        nnoremap <buffer> <Right> :n<CR>
-        nnoremap <buffer> <Left> :N<CR>
-        if !exists('#goyo')
-            Goyo
-        endif
-    endfunction
-
-    " Legacy Mapping Functions Setup
-    function FernInit() abort
-        nmap <buffer><expr> <Plug>(fern-my-open-expand-collapse) fern#smart#leaf("\<Plug>(fern-action-open:select)", "\<Plug>(fern-action-expand)", "\<Plug>(fern-action-collapse)")
-        nmap <buffer> <CR> <Plug>(fern-my-open-expand-collapse)
-        nmap <buffer> <2-LeftMouse> <Plug>(fern-my-open-expand-collapse)
-        nmap <buffer> n <Plug>(fern-action-new-path)
-        nmap <buffer> d <Plug>(fern-action-remove)
-        nmap <buffer> m <Plug>(fern-action-move)
-        nmap <buffer> M <Plug>(fern-action-rename)
-        nmap <buffer> h <Plug>(fern-action-hidden-toggle)
-        nmap <buffer> r <Plug>(fern-action-reload)
-        nmap <buffer> k <Plug>(fern-action-mark)
-        nmap <buffer> K <Plug>(fern-action-mark-children:leaf)
-        nmap <buffer> b <Plug>(fern-action-open:split)
-        nmap <buffer> v <Plug>(fern-action-open:vsplit)
-        nmap <buffer><nowait> < <Plug>(fern-action-leave)
-        nmap <buffer><nowait> > <Plug>(fern-action-enter)
-    endfunction
-]])
+-- Helper Command: Project Todo Compilation Pipeline
+vim.api.nvim_create_user_command("ProjectTodos", function()
+    local entries = {}
+    local cmds = {
+        "git grep -niIw -e TODO -e FIXME 2> /dev/null",
+        "grep -rniIw -e TODO -e FIXME . 2> /dev/null"
+    }
+    for _, cmd in ipairs(cmds) do
+        local handle = io.popen(cmd)
+        if handle then
+            local result = handle:read("*a")
+            handle:close()
+            if result ~= "" then
+                for line in result:gmatch("[^\r\n]+") do
+                    local fname, lno, text = line:match("^([^:]*):([^:]*):(.*)")
+                    if fname and lno and text then
+                        table.insert(entries, { filename = fname, lnum = tonumber(lno), text = text })
+                    end
+                end
+                break
+            end
+        end
+    end
+    if #entries > 0 then
+        vim.fn.setqflist(entries)
+        vim.cmd("copen")
+    end
+end, {})
