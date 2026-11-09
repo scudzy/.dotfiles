@@ -163,7 +163,7 @@ zinit ice lucid wait as"program" pick"httpstat"
 zinit light b4b4r07/httpstat
 
 # zsh-vi-man
-zinit light TunaCuma/zsh-vi-man
+#zinit light TunaCuma/zsh-vi-man
 
 # tealdeer
 zinit ice lucid wait from"gh-r" as"command" bpick"tealdeer-linux-x86_64-musl" pick"tldr" \
@@ -232,13 +232,14 @@ zinit ice lucid wait as"command" from"gh-r" bpick"*linux-x86_64.tar.gz" \
 zinit light neovim/neovim
 
 # Neovide
-zinit ice lucid wait as"command" from"gh-r" bpick"*linux*" pick"neovide/neovide"
+zinit ice lucid wait as"command" from"gh-r" bpick"*linux*" pick"neovide/neovide" \
+  multisrc"$SNIPPETS/xdg.zsh $HOME/.cargo/env /etc/grc.zsh"
 zinit light neovide/neovide
 
 # XDG env
-zinit ice wait"1" lucid; zinit snippet "$SNIPPETS/xdg.zsh"
-zinit ice wait"1" lucid; zinit snippet "$HOME/.cargo/env"
-zinit ice wait"1" lucid; zinit snippet "/etc/grc.zsh"
+#zinit ice wait"1" lucid; zinit snippet "$SNIPPETS/xdg.zsh"
+#zinit ice wait"1" lucid; zinit snippet "$HOME/.cargo/env"
+#zinit ice wait"1" lucid; zinit snippet "/etc/grc.zsh"
 
 # oxipng and snippets
 zinit ice wait"0b" lucid from"gh-r" \
@@ -299,15 +300,15 @@ else
 fi
 
 # Prompt: Oh-My-Posh
-eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/emodipt-extend.omp.json)"
+eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/pure.omp.json)"
 
 # translate-shell completion
 compdef _gnu_generic trans
 
 # Safe interactive .env sourcing
-if [[ -f "$HOME/.env" ]]; then
-    set -a; source "$HOME/.env"; set +a
-fi
+#if [[ -f "$HOME/.env" ]]; then
+#    set -a; source "$HOME/.env"; set +a
+#fi
 
 [[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
 

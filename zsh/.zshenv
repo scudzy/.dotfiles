@@ -77,9 +77,7 @@ export PASSWORD_STORE_DIR="$HOME/.password-store"
 export PASSWORD_STORE_ENABLE_EXTENSIONS="true"
 export PASSWORD_STORE_EXTENSIONS_DIR="$HOME/.password-store/.extensions"
 export PASSWORD_STORE_GENERATED_LENGTH="20"
-export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
-
-alias subl='/c/Program\ Files/Sublime\ Text/subl.exe &'
+export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/r
 # Zsh History File & Sizes
 export HISTFILE="$XDG_STATE_HOME/zsh/.zsh_history"
 export HISTSIZE=500000
@@ -113,11 +111,10 @@ export LDFLAGS="-L/usr/lib"
 export CPPFLAGS="-I/usr/include"
 
 # gem
-export GEM_HOME="/home/scudzy/.local/share/gem/ruby/3.3.0"
+export GEM_HOME="$HOME/.local/share/gem/ruby/3.3.0"
 export PATH="$GEM_HOME/bin:$PATH"
 
 # Other Tools
-export NVM_RC_VERSION="v25.2.1"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 export ZSH_COLORIZE_TOOL="chroma"
 
