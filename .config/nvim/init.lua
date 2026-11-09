@@ -10,14 +10,24 @@ vim.g.neovide_font_family = "CodeNewRoman Nerd Font"
 vim.g.neovide_font_size = 13.0
 
 vim.g.loaded_node_provider = 0
+--vim.g.node_host_prog = '/usr/bin/node'
 vim.g.loaded_perl_provider = 0
-vim.g.python3_host_prog = "/usr/bin/python3"
+local python3_host = vim.env.NVIM_PYTHON3_HOST_PROG or vim.fn.exepath("python3")
+if python3_host ~= "" then
+  vim.g.python3_host_prog = python3_host
+else
+  vim.g.loaded_python3_provider = 0
+end
 vim.g.loaded_ruby_provider = 0
 
 -- 3. Bootstrap lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
+  if vim.fn.executable("git") ~= 1 then
+    error("lazy.nvim is not installed and Git is unavailable; install Git and restart Neovim")
+  end
+  vim.fn.mkdir(vim.fn.fnamemodify(lazypath, ":h"), "p")
+  local output = vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
@@ -25,6 +35,9 @@ if not vim.loop.fs_stat(lazypath) then
     "--branch=stable",
     lazypath,
   })
+  if vim.v.shell_error ~= 0 or not vim.loop.fs_stat(lazypath) then
+    error("Failed to install lazy.nvim:\n" .. output)
+  end
 end
 vim.opt.rtp:prepend(lazypath)
 

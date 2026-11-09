@@ -45,11 +45,11 @@ autocmd("FileType", {
     command = "setlocal noexpandtab",
 })
 
--- Contextual CursorLine visibility toggles
+-- Keep the cursorline visible only in the active window.
 autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
     group = cursor_line_group,
     pattern = "*",
-    command = "setlocal nocursorline",
+    command = "setlocal cursorline",
 })
 
 autocmd("WinLeave", {
@@ -86,29 +86,39 @@ end, {})
 
 -- Helper Command: Project Todo Compilation Pipeline
 vim.api.nvim_create_user_command("ProjectTodos", function()
+    if vim.fn.executable("rg") ~= 1 then
+        vim.notify("ProjectTodos requires ripgrep (rg)", vim.log.levels.ERROR)
+        return
+    end
+
+    local output = vim.fn.systemlist({
+        "rg",
+        "--line-number",
+        "--no-heading",
+        "--color=never",
+        "--word-regexp",
+        "-e", "TODO",
+        "-e", "FIXME",
+        ".",
+    })
+    local status = vim.v.shell_error
+    if status > 1 then
+        vim.notify("ProjectTodos search failed:\n" .. table.concat(output, "\n"), vim.log.levels.ERROR)
+        return
+    end
+
     local entries = {}
-    local cmds = {
-        "git grep -niIw -e TODO -e FIXME 2> /dev/null",
-        "grep -rniIw -e TODO -e FIXME . 2> /dev/null"
-    }
-    for _, cmd in ipairs(cmds) do
-        local handle = io.popen(cmd)
-        if handle then
-            local result = handle:read("*a")
-            handle:close()
-            if result ~= "" then
-                for line in result:gmatch("[^\r\n]+") do
-                    local fname, lno, text = line:match("^([^:]*):([^:]*):(.*)")
-                    if fname and lno and text then
-                        table.insert(entries, { filename = fname, lnum = tonumber(lno), text = text })
-                    end
-                end
-                break
-            end
+    for _, line in ipairs(output) do
+        local fname, lno, text = line:match("^(.*):(%d+):(.*)$")
+        if fname then
+            table.insert(entries, { filename = fname, lnum = tonumber(lno), text = text })
         end
     end
+
     if #entries > 0 then
-        vim.fn.setqflist(entries)
+        vim.fn.setqflist({}, " ", { title = "Project TODOs", items = entries })
         vim.cmd("copen")
+    else
+        vim.notify("No TODO or FIXME markers found", vim.log.levels.INFO)
     end
 end, {})

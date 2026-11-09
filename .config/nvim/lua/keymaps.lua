@@ -100,8 +100,4 @@ for i = 1, 9 do
 end
 
 -- Interactive Custom User Commands
-vim.api.nvim_create_user_command("Rg", function(args)
-    vim.fn["fzf#vim#grep"]("rg --column --line-number --no-heading --color=always --smart-case " .. args.args, 1, vim.fn["fzf#vim#with_preview"](), args.bang)
-end, { bang = true, nargs = "*" })
-
 vim.api.nvim_create_user_command("Todo", "ProjectTodos", {})

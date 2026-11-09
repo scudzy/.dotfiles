@@ -4,17 +4,25 @@ vim.g.maplocalleader = " "
 
 -- Global Editor Options
 local opt = vim.opt
+local state_dir = vim.fn.stdpath("state")
+local backup_dir = state_dir .. "/backup"
+local swap_dir = state_dir .. "/swap"
+local undo_dir = state_dir .. "/undo"
+
+for _, dir in ipairs({ backup_dir, swap_dir, undo_dir }) do
+  vim.fn.mkdir(dir, "p")
+end
 
 opt.autoindent = true
 opt.autoread = true
 opt.backspace = { "indent", "eol", "start" }
-opt.backupdir = { "/tmp//", "." }
+opt.backupdir = { backup_dir .. "//" }
 opt.clipboard = "unnamedplus" -- Zero startup lag in Neovim!
 opt.colorcolumn = "80"
 opt.complete:append("kspell")
 opt.completeopt = { "menuone", "longest" }
 opt.cursorline = true
-opt.directory = { "/tmp//", "." }
+opt.directory = { swap_dir .. "//" }
 opt.encoding = "utf-8"
 opt.expandtab = true
 opt.smarttab = true
@@ -50,7 +58,7 @@ opt.splitright = true
 opt.tabstop = 4
 opt.textwidth = 0
 opt.timeoutlen = 1000
-opt.undodir = "/tmp"
+opt.undodir = undo_dir
 opt.undofile = true
 opt.virtualedit = "block"
 opt.whichwrap = "b,s,<,>"
