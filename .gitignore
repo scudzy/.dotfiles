@@ -132,7 +132,6 @@ package-lock.json
 *oauth*
 *token*
 secrets.env
-config/secrets.json
 hosts.yml
 Logs/
 docker-pass/
@@ -158,9 +157,6 @@ leaks.json
 # tmux
 swap-pane
 .config/tmux/plugins/tpm_log.txt
-
-# the curated local overrides are not secret; *.local must not swallow them
-!.config/tmux/tmux.conf.local
 
 # ---------------------------------------------------------------------------
 # Secrets & local state (must never be committed)
