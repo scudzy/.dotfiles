@@ -10,11 +10,12 @@ export GOSUMDB="sum.golang.org"
 export GOPROXY='https://proxy.golang.org,direct'
 
 # Volta
-export VOLTA_HOME="$HOME/.volta"
+export VOLTA_HOME="${VOLTA_HOME:-$HOME/.volta}"
+export PATH="$VOLTA_HOME/bin:$PATH"
 
 # Core PATH assembly (deduplicated automatically)
 typeset -U path
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$DOTFILES/sh:$GOBIN:$GOROOT/bin:$VOLTA_HOME/bin:$HOME/.local/share/npm/bin:/var/lib/gems/3.1.0/bin:/c/Windows/System32:$PATH"
+export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$DOTFILES/sh:$GOBIN:$GOROOT/bin:$VOLTA_HOME/bin:/c/Windows/System32:$PATH"
 
 # XDG Base Directory Specification
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"

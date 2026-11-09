@@ -297,11 +297,6 @@ eval "$(oh-my-posh init zsh --config $HOME/.cache/oh-my-posh/themes/pure.omp.jso
 # translate-shell completion
 compdef _gnu_generic trans
 
-# Safe interactive .env sourcing
-#if [[ -f "$HOME/.env" ]]; then
-#    set -a; source "$HOME/.env"; set +a
-#fi
-
 [[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
 
 # FZF completion trigger
