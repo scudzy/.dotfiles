@@ -164,12 +164,13 @@ swap-pane
 # clipboard history: CopyQ stores plaintext clipboard contents
 .config/copyq/*.dat
 .config/copyq/copyq.pub
+
 # caches/state directories with no value on another machine
-.config/chezmoi
-.config/navi/navi.log
+.config/chezmoi/
+.config/navi/
 .config/go/telemetry/
 .cache/
 .local/state/
 .config/configstore/
 .config/mvw/
-.config/dconf/*
+.config/dconf/
