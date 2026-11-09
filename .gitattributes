@@ -1,0 +1,28 @@
+# Auto-detect text files and normalize line endings to LF in the repository
+* text=auto
+
+# Source code and documentation (force LF line endings)
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+
+# Shell scripts (must use LF line endings to run on Linux/macOS)
+*.sh text eol=lf
+
+# Windows batch files (must use CRLF line endings to run on Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files (raw data files that Git should leave untouched)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
