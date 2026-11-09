@@ -247,7 +247,7 @@ tmux_conf_theme_right_separator_sub="|"
 #     - #{username_ssh}
 tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
 #tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
-tmux_conf_theme_status_right="#{prefix}#{pairing}#{synchronized}#(curl -s 'wttr.in/Putrajaya?m&format=3' 2>/dev/null; sleep 900) , #{cpu_percentage} | %a %d %b | %R "
+tmux_conf_theme_status_right="#{prefix}#{pairing}#{synchronized}#(curl -s 'wttr.in/Putrajaya?m&format=3' 2>/dev/null; sleep 900) , #{cpu_percentage} | %a %d %b | %R | #{ram_percentage}"
 ### #{username}#{root} |
 
 # status left style
@@ -348,6 +348,8 @@ tmux_conf_copy_to_os_clipboard=false
 # -- user customizations -------------------------------------------------------
 # this is the place to override or undo settings
 
+set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.config/tmux/plugins"
+
 # Set a new prefix / leader key.
 set -g prefix `
 bind ` send-prefix
@@ -427,9 +429,6 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @continuum-restore 'on'
 
-# set -g @plugin 'ofirgall/tmux-window-name'
-
-# set -g @plugin 'thewtex/tmux-mem-cpu-load'
 set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
 set -g @plugin 'tmux-plugins/tmux-yank'
 
@@ -446,7 +445,7 @@ set -g @override_copy_command 'iconv -f utf-8 -t utf-16le | clip.exe'
 
 # <prefix>+y copies the top buffer with raw UTF-8; route it through the
 # same UTF-16 pipeline. #!important so _apply_important wins over _apply_bindings.
-bind y run -b '"$TMUX_PROGRAM" ${TMUX_SOCKET:+-S "$TMUX_SOCKET"} save-buffer - | iconv -f utf-8 -t utf-16le | clip.exe' #!important
+# bind y run -b '"$TMUX_PROGRAM" ${TMUX_SOCKET:+-S "$TMUX_SOCKET"} save-buffer - | iconv -f utf-8 -t utf-16le | clip.exe' #!important
 # set -g @plugin 'erikw/tmux-powerline'
 
 # tmux-resurrect
