@@ -17,7 +17,6 @@ typeset -U path
 export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$DOTFILES/sh:$GOBIN:$GOROOT/bin:$VOLTA_HOME/bin:$HOME/.local/share/npm/bin:/var/lib/gems/3.1.0/bin:/c/Windows/System32:$PATH"
 
 # XDG Base Directory Specification
-
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
@@ -77,7 +76,8 @@ export PASSWORD_STORE_DIR="$HOME/.password-store"
 export PASSWORD_STORE_ENABLE_EXTENSIONS="true"
 export PASSWORD_STORE_EXTENSIONS_DIR="$HOME/.password-store/.extensions"
 export PASSWORD_STORE_GENERATED_LENGTH="20"
-export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/r
+export RCLONE_PASSWORD_COMMAND="pass scudzyDB/garbage/wsl2/rclone-deb12"
+
 # Zsh History File & Sizes
 export HISTFILE="$XDG_STATE_HOME/zsh/.zsh_history"
 export HISTSIZE=500000
@@ -94,21 +94,11 @@ export LESS="-F -i -J -M -R -W -x4 -X -z-4"
 # Default Applications
 export EDITOR="nvim"
 export VISUAL="neovide"
-export BROWSER="/c/Users/scudzy/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
+export BROWSER="explorer.exe"
 export NAVI_FZF_OVERRIDES_VAR='--height 3'
 
 # Ripgrep
 export RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case"
-
-# Cloud & AI
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT=scudzy
-export GOOGLE_CLOUD_LOCATION=asia-southeast1
-
-# Build & Library Tooling
-export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
-export LDFLAGS="-L/usr/lib"
-export CPPFLAGS="-I/usr/include"
 
 # gem
 export GEM_HOME="$HOME/.local/share/gem/ruby/3.3.0"
