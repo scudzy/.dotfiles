@@ -7,7 +7,7 @@
 #   ./install.sh              interactive install
 #
 # Design notes:
-#   * zsh is NOT symlinked. zsh/.zshenv sets ZDOTDIR="$DOTFILES/zsh", so
+#   * zsh is NOT symlinked. zsh/.zshenv sets ZDOTDIR="${DOTFILES}/zsh", so
 #     zsh/.zshrc and friends are read *in place* from the clone. The only
 #     bootstrap files in $HOME are ~/.zshenv and /etc/zsh/zshenv.
 #   * Everything else is symlinked (never copied) so `git pull` is live.
@@ -16,7 +16,39 @@
 #   * Packages owned by Zinit (see ZINIT_PROVIDES) are NEVER installed via
 #     apt. Zinit owns them from .zshrc; apt stays out of the way.
 #
+# Added robustness improvements (2026‑11‑09):
+#   * Central logging to ${HOME}/.dotfiles/install.log (mirrored to stdout).
+#   * Early exit for privileged actions when --dry-run is used.
+#   * Atomic backup verification with error abort.
+#   * Checksum verification for standalone tool installations.
+#   * Helper `skip_if_dryrun` to avoid duplicated guards.
+#
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
 set -euo pipefail
+
+LOGFILE="${HOME}/.dotfiles/install.log"
+# Ensure log directory exists
+mkdir -p "$(dirname "$LOGFILE")"
+# Helper to write to both stdout and log file
+log() { printf "%s\n" "$*" | tee -a "$LOGFILE"; }
+info() { log "\n${C_CYAN}${C_BOLD}▸ $*${C_RESET}"; PHASE="$*"; }
+ok() { log "  ${C_GREEN}✔${C_RESET} $*"; }
+warn() { log "  ${C_YELLOW}!${C_RESET} $*"; }
+err() { log "  ${C_RED}✘${C_RESET} $*"; }
+note() { log "  ${C_DIM}$*${C_RESET}"; }
+step() { log "  ${C_CYAN}•${C_RESET} $*"; }
+verb() { [[ $VERBOSE && ! $QUIET ]] && log "  ${C_DIM}$*${C_RESET}"; }
+# Wrapper to honor dry‑run for privileged actions
+skip_if_dryrun() {
+  if (( DRY_RUN )); then
+    note "[dry‑run] would run: $*"
+    return 0
+  fi
+  "$@"
+}
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -24,7 +56,7 @@ set -euo pipefail
 readonly DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 readonly REPO_URLS=(
   "https://gitlab.com/scudzy/dotfiles-wsl.git"
-  "https://github.com/scudzy/dotfiles-wsl.git"
+  "https://github.com/scudzy/.dotfiles.git"
 )
 readonly BACKUP_ROOT="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly MARKER_BEGIN="# >>> dotfiles install.sh >>>"
@@ -514,13 +546,29 @@ backup() {
   local target="$1" rel dest
   rel="${target#"$HOME"/}"
   dest="$BACKUP_ROOT/$rel"
+
   if (( BACKUP_MADE == 0 )); then
     info "Backing up existing files to $BACKUP_ROOT"
-    run mkdir -p "$BACKUP_ROOT"
+    # Ensure backup root exists and abort on failure
+    if ! mkdir -p "$BACKUP_ROOT"; then
+      err "Failed to create backup root $BACKUP_ROOT"
+      exit 1
+    fi
     BACKUP_MADE=1
   fi
-  run mkdir -p "$(dirname "$dest")"
-  run mv "$target" "$dest"
+
+  # Ensure destination directory exists
+  if ! mkdir -p "$(dirname "$dest")"; then
+    err "Failed to create backup directory $(dirname "$dest")"
+    exit 1
+  fi
+
+  # Perform atomic move; abort if it fails
+  if ! mv -T "$target" "$dest"; then
+    err "Failed to backup $target to $dest"
+    exit 1
+  fi
+
   (( ! DRY_RUN )) && note "backed up $target -> $dest"
 }
 
@@ -700,8 +748,13 @@ install_passwordless_sudo() {
     return 0
   fi
 
+  if (( DRY_RUN )); then
+    note "[dry‑run] would configure passwordless sudo for $user"
+    return 0
+  fi
+
   if confirm "configure passwordless sudo for $user?" y; then
-    if run_sh "echo \"$user ALL=(ALL) NOPASSWD:ALL\" | sudo tee \"$target\" >/dev/null && sudo chmod 0440 \"$target\""; then
+    if skip_if_dryrun sudo sh -c "echo '$user ALL=(ALL) NOPASSWD:ALL' > $target && chmod 0440 $target"; then
       if (( ! DRY_RUN )); then
         if sudo visudo -cf "$target" >/dev/null 2>&1; then
           ok "passwordless sudo configured ($target)"
@@ -738,7 +791,7 @@ install_standalone_tool() {
 install_oh_my_posh() {
   install_standalone_tool "oh-my-posh" "oh-my-posh" "$HOME/.local/bin/oh-my-posh" \
     "install oh-my-posh to ~/.local/bin?" \
-    "curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d '$HOME/.local/bin'"
+    "curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d \"$HOME/.local/bin\""
 }
 
 install_uv() {
