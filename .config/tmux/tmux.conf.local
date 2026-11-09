@@ -427,9 +427,9 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @continuum-restore 'on'
 
-set -g @plugin 'ofirgall/tmux-window-name'
+# set -g @plugin 'ofirgall/tmux-window-name'
 
-set -g @plugin 'thewtex/tmux-mem-cpu-load'
+# set -g @plugin 'thewtex/tmux-mem-cpu-load'
 set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
 set -g @plugin 'tmux-plugins/tmux-yank'
 
