@@ -110,5 +110,7 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 export ZSH_COLORIZE_TOOL="chroma"
 
 # Forgit
-export FORGIT_DIFF_FZF_OPTS="--preview-window=right:60%:wrap --ansi"
-export FORGIT_DIFF_PAGER="delta --syntax-theme=Dracula"
+export FORGIT_ADD_FZF_OPTS="--preview-window=right:60%:wrap --ansi"
+export FORGIT_DIFF_FZF_OPTS="--preview-window=right:70%:wrap --ansi"
+export FORGIT_DIFF_PAGER="delta --syntax-theme=TwoDark"
+export FORGIT_PREVIEW_PAGER="delta --paging=never --syntax-theme=TwoDark"

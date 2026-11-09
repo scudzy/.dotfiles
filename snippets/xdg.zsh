@@ -5,52 +5,95 @@
 # https://wiki.archlinux.org/index.php/XDG_Base_Directory
 
 # Make sure XDG dirs are set
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-XDG_RUNTIME_DIR="/run/user/1000"
-XDG_DATA_DIRS="/usr/local/share:/usr/share"
-XDG_CONFIG_DIRS="/etc/xdg"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_CONFIG_DIRS="${XDG_CONFIG_DIRS:-/etc/xdg}"
 
-VERIFY_XDG="${VERIFY_XDG:-true}"
+# Respect the session-provided runtime directory. Only infer the conventional
+# location when it exists and is owned by the current user.
+if [[ -z "${XDG_RUNTIME_DIR:-}" ]]; then
+  xdg_runtime_candidate="/run/user/$(id -u)"
+  if [[ -d "$xdg_runtime_candidate" && -O "$xdg_runtime_candidate" ]]; then
+    export XDG_RUNTIME_DIR="$xdg_runtime_candidate"
+  fi
+elif [[ -n "$XDG_RUNTIME_DIR" ]]; then
+  export XDG_RUNTIME_DIR
+fi
+
+export VERIFY_XDG="${VERIFY_XDG:-true}"
 
 function verify_appdir {
   local xdgdir="$1"
   local homedir="$2"
 
-  if [[ -d "$xdgdir" ]]; then
-    if [[ -d "$homedir" ]]; then
-      echo "XDG split-brain error! Both $homedir and $xdgdir exist." | sed "s|$HOME|~|g"
+  if [[ -e "$xdgdir" || -L "$xdgdir" ]]; then
+    if [[ ! -d "$xdgdir" ]]; then
+      printf 'XDG application directory path is not a directory: %s\n' "$xdgdir" >&2
+      return 1
+    fi
+    if [[ -e "$homedir" || -L "$homedir" ]]; then
+      printf 'XDG split-brain error! Both %s and %s exist.\n' "$homedir" "$xdgdir" >&2
       return 1
     fi
   elif [[ -d "$homedir" ]]; then
-    echo "Moving existing $homedir to $xdgdir" | sed "s|$HOME|~|g"
-    mv "$homedir" "$xdgdir"
+    printf 'Moving existing %s to %s\n' "$homedir" "$xdgdir"
+    mkdir -p "$(dirname "$xdgdir")" || {
+      printf 'Failed to create parent directory for %s\n' "$xdgdir" >&2
+      return 1
+    }
+    mv "$homedir" "$xdgdir" || {
+      printf 'Failed to move %s to %s\n' "$homedir" "$xdgdir" >&2
+      return 1
+    }
+  elif [[ -e "$homedir" || -L "$homedir" ]]; then
+    printf 'Legacy application path is not a directory: %s\n' "$homedir" >&2
+    return 1
   else
-    mkdir -p "$xdgdir"
+    mkdir -p "$xdgdir" || {
+      printf 'Failed to create directory %s\n' "$xdgdir" >&2
+      return 1
+    }
   fi
 }
 
 function verify_appfile {
   local xdgfile="$1"
   local homefile="$2"
-  local contents="$3"
+  local contents="${3:-}"
+  local xdgdir
 
-  if [[ -f "$xdgfile" ]]; then
-    if [[ -f "$homefile" ]]; then
-      echo "XDG split-brain error! Both $homefile and $xdgfile exist." | sed "s|$HOME|~|g"
+  if [[ -e "$xdgfile" || -L "$xdgfile" ]]; then
+    if [[ ! -f "$xdgfile" ]]; then
+      printf 'XDG application file path is not a regular file: %s\n' "$xdgfile" >&2
       return 1
     fi
-  else
-    local xdgdir=$( dirname "$xdgfile" )
-    [[ -d "$xdgdir" ]] || mkdir -p "$xdgdir"
-    if [[ -f "$xdgfile" ]]; then
-      echo "Moving existing $homefile to $xdgfile" | sed "s|$HOME|~|g"
-      mv "$homefile" "$xdgfile"
-    else
-      echo "$contents" > "$xdgfile"
+    if [[ -e "$homefile" || -L "$homefile" ]]; then
+      printf 'XDG split-brain error! Both %s and %s exist.\n' "$homefile" "$xdgfile" >&2
+      return 1
     fi
+    return 0
+  fi
+
+  xdgdir="$(dirname "$xdgfile")"
+  mkdir -p "$xdgdir" || {
+    printf 'Failed to create directory %s\n' "$xdgdir" >&2
+    return 1
+  }
+
+  if [[ -e "$homefile" || -L "$homefile" ]]; then
+    printf 'Moving existing %s to %s\n' "$homefile" "$xdgfile"
+    mv "$homefile" "$xdgfile" || {
+      printf 'Failed to move %s to %s\n' "$homefile" "$xdgfile" >&2
+      return 1
+    }
+  elif (( $# >= 3 )); then
+    printf '%s\n' "$contents" > "$xdgfile" || {
+      printf 'Failed to write %s\n' "$xdgfile" >&2
+      return 1
+    }
   fi
 }
 
@@ -99,14 +142,6 @@ if command -v docker &> /dev/null; then
 fi
 
 #
-# gnupg
-#
-if command -v gpg &> /dev/null || command -v gpg &> /dev/null; then
-  export GNUPGHOME="$HOME"/.gnupg
-  [[ $VERIFY_XDG == false ]] && verify_appdir "$GNUPGHOME" "$HOME"/.gnupg
-fi
-
-#
 # pyvoc
 #
 #if command -v pyvoc &> /dev/null || command -v pyvoc &> /dev/null; then
@@ -118,7 +153,7 @@ fi
 # ipython/jupyter
 #
 if command -v ipython &> /dev/null || type jupyter &> /dev/null; then
-  export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
+  export IPYTHONDIR="$XDG_CONFIG_HOME"/ipython
   [[ $VERIFY_XDG == true ]] && verify_appdir "$IPYTHONDIR" "$HOME"/.ipython
   export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
   [[ $VERIFY_XDG == true ]] && verify_appdir "$JUPYTER_CONFIG_DIR" "$HOME"/.jupyter
@@ -141,7 +176,7 @@ if command -v npm &> /dev/null; then
   npmrc=$(cat <<EOF
 prefix=\${XDG_DATA_HOME}/npm
 cache=\${XDG_CACHE_HOME}/npm
-tmp=\${XDG_RUNTIME_DIR}/npm
+tmp=\${XDG_CACHE_HOME}/npm/tmp
 init-module=\${XDG_CONFIG_HOME}/npm/config/npm-init.js
 EOF
 )
@@ -190,7 +225,9 @@ fi
 #
 if command -v svn &> /dev/null; then
   [[ $VERIFY_XDG == true ]] && verify_appdir "$XDG_CONFIG_HOME"/.subversion "$HOME"/.svn
-  alias svn="command svn --config-dir \"$XDG_CONFIG_HOME\"/.subversion"
+  function svn {
+    command svn --config-dir "$XDG_CONFIG_HOME/.subversion" "$@"
+  }
 fi
 
 #
@@ -222,7 +259,7 @@ hsts-file = $XDG_CACHE_HOME/wget-hsts
 EOF
 )
   export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
-  verify_appfile "$WGETRC" "$HOME"/.wgetrc "$wgetrc_contents"
+[[ $VERIFY_XDG == true ]] && verify_appfile "$WGETRC" "$HOME"/.wgetrc "$wgetrc_contents"
 fi
 
 #

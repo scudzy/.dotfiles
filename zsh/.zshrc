@@ -104,8 +104,8 @@ zinit wait"1" lucid for \
     OMZP::colorize \
     OMZP::colored-man-pages \
     atload"unalias grv" OMZP::git \
-    OMZP::python \
-    OMZP::tmux
+    OMZP::python
+    # OMZP::tmux
 
 # Fast standalone binaries from GitHub Releases
 zinit wait"2" lucid from"gh-r" as"null" for \
