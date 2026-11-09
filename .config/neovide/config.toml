@@ -1,0 +1,37 @@
+#backtraces-path = "/path/to/neovide_backtraces.log" # see below for the default platform specific locatio#n
+#chdir = "/path/to/dir"
+fork = false
+frame = "full"
+# grid = "420x240" # mutually exclusive with `size` and `maximized`
+# size = "1200x800" # mutually exclusive with `grid` and `maximized`
+idle = true
+#icon = "/full/path/to/neovide.ico" # Example path. Default icon is bundled. Use .icns on macOS.
+maximized = false
+mouse-cursor-icon = "arrow"
+#neovim-bin = "/usr/bin/nvim" # in reality found dynamically on $PATH if unset
+no-multigrid = false
+opengl = true # macOS/Windows only
+# server = "/tmp/nvim.sock" # or "127.0.0.1:7777"
+srgb = true # platform-specific: false (Linux/macOS) or true (Windows)
+startup-message-capture = true
+tabs = true
+title-hidden = false
+vsync = true
+# wayland-app-id = "neovide"
+wsl = false
+# x11-wm-class = "neovide"
+# x11-wm-class-instance = "neovide"
+
+[font]
+normal = [CodeNewRoman Nerd Font] # Will use the bundled Fira Code Nerd Font by default
+size = 13.0
+hinting = "full"
+edging = "antialias"
+
+[box-drawing]
+# "font-glyph", "native" or "selected-native"
+mode = "font-glyph"
+
+[box-drawing.sizes]
+default = [2, 4]  # Thin and thick values respectively, for all sizes
+
