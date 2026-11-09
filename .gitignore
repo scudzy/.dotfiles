@@ -172,3 +172,4 @@ swap-pane
 .local/state/
 .config/configstore/
 .config/mvw/
+.config/dconf/*
