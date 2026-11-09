@@ -29,3 +29,9 @@
 [submodule "tmux-cpu"]
 	path = .config/tmux/plugins/tmux-cpu
 	url = https://github.com/tmux-plugins/tmux-cpu
+
+[submodule "tmux-yank"]
+	path = .config/tmux/plugins/tmux-yank
+	url = https://github.com/tmux-plugins/tmux-yank
+
+
