@@ -23,9 +23,6 @@ alias -g ....='../../..'
 alias -g .....='../../../..'
 alias -g ......='../../../../..'
 
-# vscode
-alias code="/c/Users/scudz/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
-
 # benchmark
 alias zbench="export LAZY_PROMPT=false; for i in $(seq 1 10); do time 'zsh -i -c exit'; done; unset LAZY_PROMPT"
 alias stresscpu="for i in $(seq $(getconf _NPROCESSORS_ONLN)); do yes > /dev/null & done"
@@ -109,14 +106,9 @@ alias manpath="print -l $manpath"
 alias fpath="print -l $fpath"
 
 alias linecount="grep -c '^'"
-#alias ds="date +%Y%m%d"
 alias ts="date +%d%m%Y-%H%M%S"
 #alias timestamp="date '+%Y-%m-%d %H:%M:%S'"
 #alias datestamp="date '+%Y-%m-%d'"
-#alias fd='find . -type d -name'
-#alias ff='find . -type f -name'
-#alias dud='du -d 1 -h'
-#alias duf='du -sh *'
 alias dus="du -had 1 | sort -rh"
 
 # auto-orient images based on exif tags
@@ -162,39 +154,23 @@ alias gscudzy="pass show scudzyDB/IDs/Google-scudzy"
 alias ghalimi="pass show scudzyDB/IDs/Google-halimi"
 
 # others
-### sudo apt -oDebug::pkgAcquire::Worker=1 update --- debug
 alias c="calc $@"
 alias suu="sudo apt update && sudo apt upgrade -y"
 alias dfh="df -h $@"
 alias dush="du -csh $@"
-alias stats="stat -c '%A %a %n' $@" ### "stat -c '%a' $@"
-#alias time="/usr/bin/time -f'Loading in %e secomds' $@"
+alias stats="stat -c '%A %a %n' $@" ### "stat -c '%a' $@"#
 alias speed="speedtest --selection-details -v"
 alias zuu="zi self-update && zi update"
-
-# windows
-# alias pwsh="/c/Program\ Files/Powershell/7/pwsh.exe"
-# alias cmd="/c/windows/system32/cmd.exe"
-# alias powershell="/c/windows/system32/windowspowershell/v1.0/powershell.exe"
-# alias choco="/c/ProgramData/chocolatey/bin/choco.exe"
-# alias fast="cmd /c fast -u"
-# alias csu="powershell.exe -Command { choco upgrade all -y; sudo scoop update; sudo scoop status }"
 
 # nohup
 alias noxterm="nohup xfce4-terminal >/dev/null 2>&1 & sleep 3s"
 alias nothun="nohup thunar >/dev/null 2>&1 & sleep 3s"
 alias noqt="nohup qtpass >/dev/null 2>&1 & sleep 3s"
-#alias mff="flatpak run org.mozilla.firefox"
 alias noff="nohup firefox >/dev/null 2>&1 & sleep 3"
 
 # weather
 alias wttr="curl -s 'wttr.in/Kuantan?0qTm'"
 alias wttr4="curl -s 'wttr.in/Kuantan?format=4'"
-
-# # console
-# alias tio-com3="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty3"
-# alias tio-com4="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty4"
-# alias tio-com6="tio --baudrate 9600 --databits 8 --flow none --stopbits 1 --parity none /dev/tty6"
 
 # rclone
 alias rclGdrvd="rclone --exclude ".git/" sync "$DOTFILES" 'Gdrive:/dotfiles/Debian' --track-renames --checkers=16 --transfers=16 --stats=1s --tpslimit=10 --tpslimit-burst=10 -u -P -v"     # Debian
@@ -216,8 +192,6 @@ alias pyupg="pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f
 
 alias eurofx="curl -LOf https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip && mv -fv eurofxref-hist.zip $HOME/.local/share/pipx/venvs/currencyconverter/lib/python3.13/site-packages/currency_converter/eurofxref-hist.zip"
 
-# Ubuntu
-#alias pyupg="python3 -m pip freeze --local |sed -rn 's/^([^=# \t\\][^ \t=]*)=.*/echo; echo Processing \1 ...; python3 -m pip install -U \1/p' |sh"  @ debian
 
 # apt & dpkg
 # -oDebug::pkgAcquire::Worker=1 --- Add for verbose debug
@@ -235,7 +209,6 @@ alias dpigs20="dpigs --lines=20 -SH"
 alias fzfb="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
 # geo location ip
-#alias ipgeo="curl -s http://ip-api.com/json/ | jq '.' && curl -s http://wehth53mda2rrq7ui08v2w7dzupzfgy6.edns.ip-api.com/json | jq '.'"
 alias geoloc="curl -s --request GET --url https://freegeoip.app/json/ --header 'accept: application/json' --header 'content-type: application/json' | jq "
 
 # path
@@ -262,9 +235,7 @@ alias del="trash-put $@"
 alias tempty="trash-empty $@"
 alias trestore="restore-trash $@"
 alias tlist="trash-list"
-# alias cat="bat --pager"
 alias td="tldr"
-# alias tldr='tealdeer'
 
 # dns
 alias dns1='echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8\n" | sudo tee /etc/resolv.conf'
@@ -315,8 +286,6 @@ alias gc-s="gcloud cheat-sheet"
 alias shutdown="wsl.exe --shutdown $WSL_DISTRO_NAME"
 alias reboot="wsl.exe --terminate $WSL_DISTRO_NAME"
 
-alias tmx="direnv exec / tmux new -s"
-
 # fpath
 alias fpath="print -l $fpath"
 
@@ -341,7 +310,8 @@ alias gppghglab="git push origin main -v && git push gitlab main -v"
 alias gppglabgh="git push origin main -v && git push github main -v"
 
 # st4
-alias zshrc='neovide ~/.dotfiles/zsh/zshrc &'
-alias zshenv='neovide ~/.dotfiles/zsh/zshenv &'
-alias zprofile='neovide ~/.dotfiles/zsh/zprofile &'
-alias aliases='neovide ~/.dotfiles/snippets/aliases.zsh &'
+alias zshrc='neovide ~/.dotfiles/zsh/.zshrc &'
+alias zshenv='neovide ~/.dotfiles/zsh/.zshenv &'
+alias zprofile='neovide ~/.dotfiles/zsh/.zprofile &'
+alias nvide='neovide ~/.dotfiles/snippets/aliases.zsh &'
+alias tmux='tmux -f ~/.tmux.conf'
