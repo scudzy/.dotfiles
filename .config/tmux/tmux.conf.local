@@ -355,15 +355,12 @@ bind ` send-prefix
 # increase history size
 set -g history-limit 10000
 
-# Bind Ctrl+G to open Dimensions in a popup (works even inside nvim/vim)
-bind -n C-g display-popup -E -w 80% -h 80% "dimensions"
-
-# Window configuration for Dimensions
+# Window configuration
 set -g base-index 1           # start window numbering at 1
 set -g renumber-windows on    # Optional: renumber windows when one is closed
 set -g mouse on               # Enable mouse support
 
-# Optional: Minimal status bar (avoids dimension name truncation)
+# Optional: Minimal status bar
 set -g status-left "🌌 " #!important
 
 # force Vi mode
@@ -453,8 +450,8 @@ bind y run -b '"$TMUX_PROGRAM" ${TMUX_SOCKET:+-S "$TMUX_SOCKET"} save-buffer - |
 # set -g @plugin 'erikw/tmux-powerline'
 
 # tmux-resurrect
-set -g @resurrect-hook-post-save-all 'eval $(xdotool getwindowgeometry --shell $WINDOWID); echo 0,$X,$Y,$WIDTH,$HEIGHT > $HOME/.tmux/resurrect/geometry'
-set -g @resurrect-hook-pre-restore-all 'wmctrl -i -r $WINDOWID -e $(cat /home/scudzy/.config/tmux/plugins/tmux-resurrect/resurrect.tmux/geometry)'
+set -g @resurrect-hook-post-save-all 'mkdir -p "$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux" && eval "$(xdotool getwindowgeometry --shell "$WINDOWID")" && printf "%s\n" "0,$X,$Y,$WIDTH,$HEIGHT" > "$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux/geometry"'
+set -g @resurrect-hook-pre-restore-all 'wmctrl -i -r "$WINDOWID" -e "$(cat "$HOME/.config/tmux/plugins/tmux-resurrect/resurrect.tmux/geometry")"'
 set -g @resurrect-save 'S'
 set -g @resurrect-restore 'R'
 set -g @resurrect-strategy-vim 'session'
