@@ -6,9 +6,14 @@ require("autocmds")
 require("keymaps")
 
 -- Neovide graphical interface settings
-vim.g.neovide_font_family = "CodeNewRoman Nerd Font"
-vim.g.neovide_font_size = 13.0
+vim.g.neovide_progress_bar_enabled = true
+vim.g.neovide_progress_bar_height = 5.0
+vim.g.neovide_progress_bar_animation_speed = 200.0
+vim.g.neovide_progress_bar_hide_delay = 0.2
+vim.g.neovide_hide_mouse_when_typing = false
+vim.g.neovide_remember_window_size = true
 
+-- Dev provider
 vim.g.loaded_node_provider = 0
 --vim.g.node_host_prog = '/usr/bin/node'
 vim.g.loaded_perl_provider = 0
