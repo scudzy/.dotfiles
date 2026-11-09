@@ -18,6 +18,11 @@
   features = side-by-side line-numbers decorations
   whitespace-error-style = 22 reverse
   side-by-side = true
+  line-numbers = true
+[merge]
+    conflictstyle = diff3
+[diff]
+    colorMoved = default
 [interactive]
   diffFilter = delta --color-only
   plus-style = "syntax #012800"
