@@ -156,7 +156,7 @@ leaks.json
 
 # tmux
 swap-pane
-.config/tmux/plugins/tpm_log.txt
+.config/tmux/plugins/*log.txt
 
 # ---------------------------------------------------------------------------
 # Secrets & local state (must never be committed)
