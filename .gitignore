@@ -174,3 +174,4 @@ swap-pane
 .config/configstore/
 .config/mvw/
 .config/dconf/
+.config/tmux/plugins/tpm
