@@ -158,6 +158,10 @@ zinit light fastfetch-cli/fastfetch
 zinit ice wait'!0' lucid
 zinit light skywind3000/z.lua
 
+# ziggity
+zinit ice lucid wait'!0' from'gh-r' as'command' bpick'*x86_64-linux-musl.tar.gz' pick'ziggity'
+zinit light simoarpe/ziggity
+
 # httpstat
 zinit ice lucid wait as"program" pick"httpstat"
 zinit light b4b4r07/httpstat
