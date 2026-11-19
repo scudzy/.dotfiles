@@ -226,6 +226,7 @@ alias gp="git push --verbose"
 alias gitlg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gcom="git commit -m $@"
 alias rmgitd="find . -type d -name ".git" -exec rm -rf {} +"
+alias gds="git diff --staged"
 
 # terminal
 alias term-size='echo "Rows=$(tput lines) Cols=$(tput cols)"'
@@ -315,3 +316,4 @@ alias zshenv='neovide ~/.dotfiles/zsh/.zshenv &'
 alias zprofile='neovide ~/.dotfiles/zsh/.zprofile &'
 alias nvide='neovide ~/.dotfiles/snippets/aliases.zsh &'
 alias tmux='tmux -f ~/.tmux.conf'
+
